@@ -14,6 +14,7 @@ interface ParsedMedicineResponse {
 }
 
 export default function Medicines() {
+    const API_URL = import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com';
     const [searchQuery, setSearchQuery] = useState('')
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
@@ -71,7 +72,7 @@ export default function Medicines() {
         setShowSuggestions(false)
 
         try {
-            const response = await fetch('http://localhost:5000/api/medicine/lookup', {
+            const response = await fetch(`${API_URL}/api/medicine/lookup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ medicineName: searchQuery })

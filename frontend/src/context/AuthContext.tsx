@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const token = await result.user.getIdToken();
 
             // Sync with our backend
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/sync`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com'}/api/auth/sync`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

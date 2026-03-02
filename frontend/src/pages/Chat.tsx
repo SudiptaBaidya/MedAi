@@ -22,6 +22,7 @@ interface Session {
 }
 
 export default function Chat() {
+    const API_URL = import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com';
     const [input, setInput] = useState('')
     const [messages, setMessages] = useState<Message[]>([
         { role: 'system', content: 'Hi, I am MedAI. How can I help you today? Please describe your symptoms.' }
@@ -38,7 +39,7 @@ export default function Chat() {
 
     const fetchSessions = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/chat/sessions')
+            const res = await fetch(`${API_URL}/api/chat/sessions`)
             if (res.ok) {
                 const data = await res.json()
                 setSessions(data)
@@ -50,7 +51,7 @@ export default function Chat() {
 
     const loadSession = async (id: string) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/chat/sessions/${id}`)
+            const res = await fetch(`${API_URL}/api/chat/sessions/${id}`)
             if (res.ok) {
                 const session = await res.json()
                 setCurrentSessionId(session._id)
@@ -119,7 +120,7 @@ export default function Chat() {
         setIsLoading(true)
 
         try {
-            const response = await fetch('http://localhost:5000/api/chat/analyze', {
+            const response = await fetch(`${API_URL}/api/chat/analyze`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

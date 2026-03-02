@@ -6,7 +6,9 @@
       "DOM.Iterable",
       "ESNext"
     ],
-    "types": [],
+    "types": [
+      "vite/client"
+    ],
     "allowJs": false,
     "skipLibCheck": false,
     "esModuleInterop": false,

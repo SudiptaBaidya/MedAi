@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/react-app-env.d.ts","./src/layouts/mainlayout.tsx","./src/pages/chat.tsx","./src/pages/home.tsx","./src/pages/medicines.tsx"],"version":"5.7.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/react-app-env.d.ts","./src/vite-env.d.ts","./src/config/firebase.ts","./src/context/authcontext.tsx","./src/layouts/mainlayout.tsx","./src/pages/auth.tsx","./src/pages/chat.tsx","./src/pages/home.tsx","./src/pages/medicines.tsx"],"errors":true,"version":"5.7.3"}
