@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply font-sans;
+    background: theme('colors.white');
+    color: theme('colors.text.body');
+    line-height: 1.6;
+  }
+}
+
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-white rounded-lg p-7 shadow-card border border-[#0B1F2E]/5;
+  }
+  .card-dark {
+    @apply bg-navy-mid rounded-lg p-7 border border-teal/10;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[13px] font-medium font-sans border-none cursor-pointer transition-all duration-200 no-underline;
+  }
+  .btn-primary {
+    @apply bg-teal text-navy hover:bg-teal-light hover:shadow-[0_4px_16px_rgba(10,191,163,0.3)];
+  }
+  .btn-secondary {
+    @apply bg-transparent text-teal border-[1.5px] border-teal hover:bg-teal/10;
+  }
+  .btn-ghost {
+    @apply bg-gray-100 text-text-body hover:bg-gray-200;
+  }
+  .btn-danger {
+    @apply bg-danger text-white;
+  }
+  .btn-sm {
+    @apply px-3.5 py-1.5 text-xs;
+  }
+  .btn-lg {
+    @apply px-7 py-3.5 text-[15px] rounded-lg;
+  }
+  .btn-icon {
+    @apply w-9 h-9 p-0 inline-flex items-center justify-center rounded-md;
+  }
+
+  /* Inputs */
+  .input-group {
+    @apply flex flex-col gap-1.5;
+  }
+  .input-label {
+    @apply text-xs font-medium text-text-body;
+  }
+  .input-field {
+    @apply px-4 py-[11px] border-[1.5px] border-gray-200 rounded-md text-[13px] font-sans text-text-body bg-white outline-none transition-colors duration-200 w-full;
+  }
+  .input-field:focus {
+    @apply border-teal focus:ring-[3px] focus:ring-teal/10;
+  }
+  .input-field.error {
+    @apply border-danger;
+  }
+  .input-hint {
+    @apply text-[11px] text-text-muted;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium;
+  }
+  .badge-teal {
+    @apply bg-teal/10 text-teal-dark;
+  }
+  .badge-warn {
+    @apply bg-warn/15 text-[#8A6100];
+  }
+  .badge-danger {
+    @apply bg-danger/10 text-danger;
+  }
+  .badge-navy {
+    @apply bg-navy text-gray-200;
+  }
+}
