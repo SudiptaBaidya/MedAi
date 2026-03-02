@@ -14,7 +14,13 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+    origin: [
+        'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002',
+        'http://localhost:3003', 'http://localhost:5173', 'http://localhost:5174',
+        'http://localhost:5175', 'http://localhost:5176',
+        'https://med-ai-rho-eight.vercel.app',
+        'https://medai-utym.onrender.com'
+    ],
     credentials: true
 }))
 app.use(express.json({ limit: '50mb' }))
