@@ -39,9 +39,9 @@ export default {
         success: '#10B981',
       },
       fontFamily: {
-        sans: ['Inter', '"DM Sans"', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
         mono: ['"DM Mono"', 'monospace'],
-        display: ['Inter', 'Syne', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
       },
       borderRadius: {
         sm: '8px',

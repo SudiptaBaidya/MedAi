@@ -10,12 +10,46 @@
   }
 
   body {
-    @apply font-sans;
-    background: theme('colors.gray.50');
-    color: theme('colors.text.body');
+    font-family: 'Inter', sans-serif !important;
+    background-color: theme('colors.gray.50') !important;
+    color: theme('colors.text.body') !important;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  div,
+  a {
+    font-family: inherit;
+  }
+
+  /* Force hero banner button styling */
+  .bg-gradient-to-br.from-teal a.bg-white {
+    background-color: #ffffff !important;
+    color: #0F766E !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .bg-gradient-to-br.from-teal a.bg-white:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    background-color: #F0FDF8 !important;
+  }
+
+  /* Force gradient look on hero */
+  .bg-gradient-to-br.from-teal {
+    background: linear-gradient(135deg, #2DD4BF 0%, #0F766E 100%) !important;
+    box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border-radius: 24px !important;
   }
 }
 
@@ -23,29 +57,45 @@
 
   /* Layout specific */
   nav.bg-navy {
-    @apply bg-navy/95 backdrop-blur-md border-r border-[#1E3A4A]/30 transition-all duration-300;
+    background-color: rgba(11, 31, 46, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border-right: 1px solid rgba(30, 58, 74, 0.3) !important;
+    transition: all 0.3s ease !important;
   }
 
   nav.bg-navy a.bg-teal {
-    @apply border border-teal-light/20;
-    box-shadow: 0 0 15px rgba(13, 148, 136, 0.4);
+    border: 1px solid rgba(45, 212, 191, 0.2) !important;
+    box-shadow: 0 0 15px rgba(13, 148, 136, 0.4) !important;
   }
 
   /* Cards */
   .card {
-    @apply bg-white rounded-md p-7 shadow-card border border-gray-200 transition-all duration-300;
+    background-color: #ffffff !important;
+    border-radius: 16px !important;
+    padding: 1.75rem !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -5px rgba(11, 31, 46, 0.08) !important;
+    transition: all 0.3s ease !important;
   }
 
   .card:hover {
-    @apply -translate-y-1 shadow-float border-teal/20;
+    transform: translateY(-4px) !important;
+    border-color: rgba(13, 148, 136, 0.3) !important;
+    box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.15), 0 10px 20px -5px rgba(11, 31, 46, 0.1) !important;
   }
 
   .card-dark {
-    @apply bg-navy-mid rounded-md p-7 border border-teal/10 transition-all duration-300;
+    background-color: #122636 !important;
+    border-radius: 16px !important;
+    padding: 1.75rem !important;
+    border: 1px solid rgba(13, 148, 136, 0.1) !important;
+    transition: all 0.3s ease !important;
   }
 
   .card-dark:hover {
-    @apply -translate-y-1 shadow-float border-teal/30;
+    transform: translateY(-4px) !important;
+    border-color: rgba(13, 148, 136, 0.3) !important;
+    box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.15), 0 10px 20px -5px rgba(11, 31, 46, 0.1) !important;
   }
 
   /* Buttons */
@@ -54,27 +104,61 @@
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-teal to-teal-dark text-white hover:brightness-110 hover:-translate-y-0.5;
+    background: linear-gradient(to right, #0D9488, #0F766E) !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease !important;
   }
 
   .btn-primary:hover {
-    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
+    filter: brightness(1.1) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3) !important;
   }
 
   .btn-secondary {
-    @apply bg-white text-teal border-[1.5px] border-teal hover:bg-teal/5 hover:-translate-y-0.5;
+    background-color: #ffffff !important;
+    color: #0D9488 !important;
+    border: 1.5px solid #0D9488 !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(13, 148, 136, 0.05) !important;
+    transform: translateY(-2px) !important;
   }
 
   .btn-ghost {
-    @apply bg-gray-100 text-text-body hover:bg-gray-200 hover:-translate-y-0.5;
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+    transition: all 0.3s ease !important;
+  }
+
+  .btn-ghost:hover {
+    background-color: #E2E8F0 !important;
+    transform: translateY(-2px) !important;
   }
 
   .btn-danger {
-    @apply bg-danger text-white hover:brightness-110 hover:-translate-y-0.5;
+    background-color: #EF4444 !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease !important;
   }
 
   .btn-danger:hover {
-    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+    filter: brightness(1.1) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25) !important;
+  }
+
+  /* Link hover polish */
+  a.hover\:underline {
+    transition: all 0.3s ease !important;
+  }
+
+  a.hover\:underline:hover {
+    text-decoration: none !important;
+    transform: translateX(4px) !important;
+    opacity: 0.8 !important;
   }
 
   .btn-sm {
