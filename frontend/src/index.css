@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,46 +8,74 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply font-sans;
-    background: theme('colors.white');
+    background: theme('colors.gray.50');
     color: theme('colors.text.body');
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer components {
+
+  /* Layout specific */
+  nav.bg-navy {
+    @apply bg-navy/95 backdrop-blur-md border-r border-[#1E3A4A]/30 transition-all duration-300;
+  }
+
+  nav.bg-navy a.bg-teal {
+    @apply shadow-[0_0_15px_rgba(13, 148, 136, 0.4)] border border-teal-light/20;
+  }
+
   /* Cards */
   .card {
-    @apply bg-white rounded-lg p-7 shadow-card border border-[#0B1F2E]/5;
+    @apply bg-white rounded-md p-7 shadow-card border border-gray-200 transition-all duration-300;
   }
+
+  .card:hover {
+    @apply -translate-y-1 shadow-float border-teal/20;
+  }
+
   .card-dark {
-    @apply bg-navy-mid rounded-lg p-7 border border-teal/10;
+    @apply bg-navy-mid rounded-md p-7 border border-teal/10 transition-all duration-300;
+  }
+
+  .card-dark:hover {
+    @apply -translate-y-1 shadow-float border-teal/30;
   }
 
   /* Buttons */
   .btn {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[13px] font-medium font-sans border-none cursor-pointer transition-all duration-200 no-underline;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[13px] font-medium font-sans border-none cursor-pointer transition-all duration-300 no-underline shadow-sm hover:shadow-md;
   }
+
   .btn-primary {
-    @apply bg-teal text-navy hover:bg-teal-light hover:shadow-[0_4px_16px_rgba(10,191,163,0.3)];
+    @apply bg-gradient-to-r from-teal to-teal-dark text-white hover:brightness-110 hover:shadow-[0_8px_20px_rgba(13, 148, 136, 0.3)] hover:-translate-y-0.5;
   }
+
   .btn-secondary {
-    @apply bg-transparent text-teal border-[1.5px] border-teal hover:bg-teal/10;
+    @apply bg-white text-teal border-[1.5px] border-teal hover:bg-teal/5 hover:-translate-y-0.5;
   }
+
   .btn-ghost {
-    @apply bg-gray-100 text-text-body hover:bg-gray-200;
+    @apply bg-gray-100 text-text-body hover:bg-gray-200 hover:-translate-y-0.5;
   }
+
   .btn-danger {
-    @apply bg-danger text-white;
+    @apply bg-danger text-white hover:brightness-110 hover:shadow-[0_8px_20px_rgba(239, 68, 68, 0.25)] hover:-translate-y-0.5;
   }
+
   .btn-sm {
     @apply px-3.5 py-1.5 text-xs;
   }
+
   .btn-lg {
     @apply px-7 py-3.5 text-[15px] rounded-lg;
   }
+
   .btn-icon {
     @apply w-9 h-9 p-0 inline-flex items-center justify-center rounded-md;
   }
@@ -54,18 +84,23 @@
   .input-group {
     @apply flex flex-col gap-1.5;
   }
+
   .input-label {
     @apply text-xs font-medium text-text-body;
   }
+
   .input-field {
-    @apply px-4 py-[11px] border-[1.5px] border-gray-200 rounded-md text-[13px] font-sans text-text-body bg-white outline-none transition-colors duration-200 w-full;
+    @apply px-4 py-[11px] border-[1.5px] border-gray-200 rounded-md text-[13px] font-sans text-text-body bg-white outline-none transition-all duration-300 w-full shadow-sm;
   }
+
   .input-field:focus {
-    @apply border-teal focus:ring-[3px] focus:ring-teal/10;
+    @apply border-teal focus:ring-[3px] focus:ring-teal/20 shadow-md;
   }
+
   .input-field.error {
     @apply border-danger;
   }
+
   .input-hint {
     @apply text-[11px] text-text-muted;
   }
@@ -74,15 +109,19 @@
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium;
   }
+
   .badge-teal {
     @apply bg-teal/10 text-teal-dark;
   }
+
   .badge-warn {
     @apply bg-warn/15 text-[#8A6100];
   }
+
   .badge-danger {
     @apply bg-danger/10 text-danger;
   }
+
   .badge-navy {
     @apply bg-navy text-gray-200;
   }
