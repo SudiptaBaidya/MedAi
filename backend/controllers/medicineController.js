@@ -56,7 +56,7 @@ export const lookupMedicine = async (req, res) => {
 
     } catch (error) {
         console.error('[HuggingFace Medicine Error]', error)
-        res.status(500).json({ error: 'Failed to lookup medicine data.' })
+        res.status(500).json({ error: 'Failed to lookup medicine data.', details: error.message })
     }
 }
 
@@ -113,6 +113,6 @@ export const extractMedicineName = async (req, res) => {
 
     } catch (error) {
         console.error('[HuggingFace Extractor Error]', error)
-        res.status(500).json({ error: 'Failed to extract medicine name.' })
+        res.status(500).json({ error: 'Failed to extract medicine name.', details: error.message })
     }
 }

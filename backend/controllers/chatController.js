@@ -147,7 +147,7 @@ export const analyzeSymptoms = async (req, res) => {
             });
         }
 
-        res.status(500).json({ error: 'Failed to process symptoms with AI. Please try again.' })
+        res.status(500).json({ error: 'Failed to process symptoms with AI. Please try again.', details: error.message, stack: error.stack })
     }
 }
 

@@ -102,7 +102,15 @@ export default function Chat() {
                 })
             })
 
-            if (!response.ok) throw new Error('Failed to analyze symptoms')
+            if (!response.ok) {
+                try {
+                    const errData = await response.json();
+                    console.error("Backend Error Details:", errData);
+                    throw new Error(errData.details || 'Failed to analyze symptoms');
+                } catch (e) {
+                    throw new Error('Failed to analyze symptoms');
+                }
+            }
 
             const data = await response.json()
 
