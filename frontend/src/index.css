@@ -27,7 +27,8 @@
   }
 
   nav.bg-navy a.bg-teal {
-    @apply shadow-[0_0_15px_rgba(13, 148, 136, 0.4)] border border-teal-light/20;
+    @apply border border-teal-light/20;
+    box-shadow: 0 0 15px rgba(13, 148, 136, 0.4);
   }
 
   /* Cards */
@@ -53,7 +54,11 @@
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-teal to-teal-dark text-white hover:brightness-110 hover:shadow-[0_8px_20px_rgba(13, 148, 136, 0.3)] hover:-translate-y-0.5;
+    @apply bg-gradient-to-r from-teal to-teal-dark text-white hover:brightness-110 hover:-translate-y-0.5;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
   }
 
   .btn-secondary {
@@ -65,7 +70,11 @@
   }
 
   .btn-danger {
-    @apply bg-danger text-white hover:brightness-110 hover:shadow-[0_8px_20px_rgba(239, 68, 68, 0.25)] hover:-translate-y-0.5;
+    @apply bg-danger text-white hover:brightness-110 hover:-translate-y-0.5;
+  }
+
+  .btn-danger:hover {
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
   }
 
   .btn-sm {
