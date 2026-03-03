@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Paperclip, X } from 'lucide-react'
+import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare } from 'lucide-react'
 
 // Define the expected structure from the backend AI
 interface ParsedAIResponse {
@@ -30,8 +30,6 @@ export default function Chat() {
     const [isLoading, setIsLoading] = useState(false)
     const [sessions, setSessions] = useState<Session[]>([])
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
-    const [selectedImage, setSelectedImage] = useState<string | null>(null)
-    const [imageFile, setImageFile] = useState<File | null>(null)
 
     useEffect(() => {
         fetchSessions()
@@ -78,45 +76,20 @@ export default function Chat() {
         setMessages([
             { role: 'system', content: 'Hi, I am MedAI. How can I help you today? Please describe your symptoms.' }
         ])
-        removeImage()
     }
 
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            setImageFile(file)
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setSelectedImage(reader.result as string)
-            }
-            reader.readAsDataURL(file)
-        }
-    }
 
-    const removeImage = () => {
-        setSelectedImage(null)
-        setImageFile(null)
-    }
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault()
-        if ((!input.trim() && !selectedImage) || isLoading) return
+        if (!input.trim() || isLoading) return
 
         // Add user message
         const userMessage = input.trim()
-        let finalContent: any = userMessage;
 
-        if (selectedImage) {
-            finalContent = [
-                { type: "text", text: userMessage },
-                { type: "image_url", image_url: { url: selectedImage } }
-            ]
-        }
-
-        const newMessages: Message[] = [...messages, { role: 'user', content: finalContent }]
+        const newMessages: Message[] = [...messages, { role: 'user', content: userMessage }]
         setMessages(newMessages)
         setInput('')
-        removeImage()
         setIsLoading(true)
 
         try {
@@ -304,20 +277,7 @@ export default function Chat() {
                         onSubmit={handleSend}
                         className="max-w-3xl mx-auto flex flex-col gap-3 relative"
                     >
-                        {selectedImage && (
-                            <div className="relative inline-block w-fit ml-14 mb-1">
-                                <img src={selectedImage} alt="Preview" className="h-16 rounded-md border border-gray-200 shadow-sm object-cover" />
-                                <button type="button" onClick={removeImage} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors">
-                                    <X size={12} />
-                                </button>
-                            </div>
-                        )}
                         <div className="flex gap-3 relative w-full items-center">
-                            <label className="cursor-pointer bg-gray-50 shrink-0 w-12 h-12 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-200 transition-colors shadow-sm">
-                                <Paperclip size={20} />
-                                <input type="file" accept="image/*" hidden onChange={handleImageSelect} disabled={isLoading} />
-                            </label>
-
                             <input
                                 type="text"
                                 value={input}
@@ -328,7 +288,7 @@ export default function Chat() {
                             />
                             <button
                                 type="submit"
-                                disabled={(!input.trim() && !selectedImage) || isLoading}
+                                disabled={!input.trim() || isLoading}
                                 className="absolute right-1.5 top-1.5 bottom-1.5 w-10 bg-teal text-navy rounded-lg flex items-center justify-center hover:bg-teal-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <Send size={16} className="ml-1" />

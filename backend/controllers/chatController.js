@@ -20,7 +20,6 @@ SAFETY BOUNDARIES (CRITICAL):
 3. AVOID emergency medical instructions. If symptoms suggest a severe condition (e.g. chest pain, extreme bleeding), immediately recommend emergency services as the Suggested Next Step.
 4. DO NOT prescribe restricted medicines.
 5. If the user asks for medicine suggestions for common diseases or symptoms (e.g., fever, cold), you MAY suggest common over-the-counter (OTC) medicines. However, you MUST explicitly state that they should consult with a doctor before taking any medication.
-6. If the user provides an image, you MUST explicitly state: "I cannot medically diagnose conditions from images. Please show this to a dermatologist or doctor."
 
 FORMAT INSTRUCTIONS:
 Always respond exactly in this JSON format:
@@ -48,6 +47,11 @@ export const analyzeSymptoms = async (req, res) => {
         // Filter greeting and format for AI
         const formattedMessages = messages.map(msg => {
             let content = msg.content;
+            if (Array.isArray(content)) {
+                // Legacy image message fallback
+                const textPart = content.find(p => p.type === 'text');
+                content = textPart ? textPart.text : "Image provided by user (no longer supported).";
+            }
             if (typeof content === 'object' && !Array.isArray(content)) content = JSON.stringify(content);
             const role = (msg.role === 'system' || msg.role === 'assistant') ? 'assistant' : 'user';
             return { role, content };
@@ -62,10 +66,10 @@ export const analyzeSymptoms = async (req, res) => {
         ];
 
         const completion = await openai.chat.completions.create({
-            model: 'meta-llama/Llama-3.2-11B-Vision-Instruct',
+            model: 'meta-llama/Meta-Llama-3-8B-Instruct',
             max_tokens: 500,
             messages: apiMessages,
-            temperature: 0.5,
+            temperature: 0.1,
             response_format: { type: "json_object" }
         });
 
