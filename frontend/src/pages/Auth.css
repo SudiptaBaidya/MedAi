@@ -1,0 +1,216 @@
+.auth-container {
+    min-height: 100vh;
+    background-color: var(--color-navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 28rem;
+    background-color: var(--color-white);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 2rem;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* Logo Section */
+.auth-logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    color: var(--color-navy);
+}
+
+.auth-logo-icon-wrapper {
+    width: 4rem;
+    height: 4rem;
+    background-color: rgba(13, 148, 136, 0.1);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.auth-logo-icon {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-teal);
+    z-index: 10;
+}
+
+.auth-logo-pulse {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(13, 148, 136, 0.2);
+    border-radius: 9999px;
+    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.5;
+}
+
+@keyframes ping {
+
+    75%,
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.auth-logo-text {
+    font-family: 'Inter', 'Syne', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.auth-logo-highlight {
+    color: var(--color-teal);
+}
+
+.auth-logo-subtitle {
+    color: var(--color-gray-500);
+    margin-top: 0.5rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Login Section */
+.auth-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.auth-divider {
+    position: relative;
+}
+
+.auth-divider-line-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+}
+
+.auth-divider-line {
+    width: 100%;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.auth-divider-text-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.auth-divider-text {
+    padding-inline: 1rem;
+    background-color: var(--color-white);
+    color: var(--color-gray-500);
+}
+
+/* Google Button */
+.auth-google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background-color: var(--color-white);
+    border: 2px solid var(--color-slate);
+    color: var(--color-navy);
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.auth-google-btn:hover:not(:disabled) {
+    background-color: rgba(241, 245, 249, 0.3);
+    /* slate/30 */
+    border-color: var(--color-teal);
+}
+
+.auth-google-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.auth-google-spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--color-navy);
+    border-top-color: transparent;
+    border-radius: 9999px;
+    animation: spin 1s linear infinite;
+}
+
+.auth-google-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.auth-google-btn:hover:not(:disabled) .auth-google-icon {
+    transform: scale(1.1);
+}
+
+.auth-google-text {
+    font-size: 15px;
+}
+
+/* Error Message */
+.auth-error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    animation: pulse-error 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-error {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Footer / Disclaimer */
+.auth-footer {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--color-gray-400);
+    margin-top: 1.5rem;
+    padding-inline: 1rem;
+}
+
+.auth-link {
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+    color: var(--color-navy);
+}

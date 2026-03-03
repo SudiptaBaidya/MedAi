@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Activity } from 'lucide-react';
+import './Auth.css'
 
 export default function Auth() {
     const { user, loginWithGoogle } = useAuth();
@@ -28,43 +29,43 @@ export default function Auth() {
     };
 
     return (
-        <div className="min-h-screen bg-navy flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 transform transition-all">
+        <div className="auth-container">
+            <div className="auth-card">
 
                 {/* Logo Section */}
-                <div className="flex flex-col items-center justify-center mb-10 text-navy">
-                    <div className="w-16 h-16 bg-teal/10 rounded-full flex items-center justify-center mb-4 relative">
-                        <Activity className="w-8 h-8 text-teal z-10" />
-                        <div className="absolute inset-0 bg-teal/20 rounded-full animate-ping opacity-50"></div>
+                <div className="auth-logo-section">
+                    <div className="auth-logo-icon-wrapper">
+                        <Activity className="auth-logo-icon" />
+                        <div className="auth-logo-pulse"></div>
                     </div>
-                    <h1 className="font-display text-4xl font-extrabold flex items-center gap-1">
-                        Med<span className="text-teal">AI</span>
+                    <h1 className="auth-logo-text">
+                        Med<span className="auth-logo-highlight">AI</span>
                     </h1>
-                    <p className="text-gray-500 mt-2 font-medium text-center">
+                    <p className="auth-logo-subtitle">
                         Your Personal Health Assistant
                     </p>
                 </div>
 
                 {/* Login Section */}
-                <div className="space-y-6">
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200"></div>
+                <div className="auth-form-section">
+                    <div className="auth-divider">
+                        <div className="auth-divider-line-container">
+                            <div className="auth-divider-line"></div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-gray-500">Sign in or register</span>
+                        <div className="auth-divider-text-container">
+                            <span className="auth-divider-text">Sign in or register</span>
                         </div>
                     </div>
 
                     <button
                         onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className={`w-full flex items-center justify-center gap-3 bg-white border-2 border-slate text-navy font-semibold py-3.5 px-4 rounded-xl hover:bg-slate/30 hover:border-teal transition-all duration-200 group ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        className="auth-google-btn"
                     >
                         {isLoading ? (
-                            <div className="w-5 h-5 border-2 border-navy border-t-transparent rounded-full animate-spin"></div>
+                            <div className="auth-google-spinner"></div>
                         ) : (
-                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                            <svg className="auth-google-icon" viewBox="0 0 24 24">
                                 <path
                                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                                     fill="#4285F4"
@@ -83,17 +84,17 @@ export default function Auth() {
                                 />
                             </svg>
                         )}
-                        <span className="text-[15px]">Continue with Google</span>
+                        <span className="auth-google-text">Continue with Google</span>
                     </button>
 
                     {error && (
-                        <div className="bg-danger/10 text-danger text-sm font-medium p-3 rounded-lg text-center animate-pulse">
+                        <div className="auth-error">
                             {error}
                         </div>
                     )}
 
-                    <p className="text-xs text-center text-gray-400 mt-6 px-4">
-                        By continuing, you are setting up a MedAI account and agree to our <span className="underline cursor-pointer hover:text-navy">User Agreement</span> and <span className="underline cursor-pointer hover:text-navy">Privacy Policy</span>.
+                    <p className="auth-footer">
+                        By continuing, you are setting up a MedAI account and agree to our <span className="auth-link">User Agreement</span> and <span className="auth-link">Privacy Policy</span>.
                     </p>
                 </div>
             </div>

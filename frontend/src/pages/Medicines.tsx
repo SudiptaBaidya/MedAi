@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, Info, ShieldAlert, Activity, AlertTriangle, Pill, Loader2 } from 'lucide-react'
+import './Medicines.css'
 
 // Define the expected structure from the backend AI
 interface ParsedMedicineResponse {
@@ -93,25 +94,23 @@ export default function Medicines() {
         }
     }
 
-    const riskColor =
-        medicineData?.risk === 'low' ? 'bg-teal/15 text-teal-dark border-teal/20' :
-            medicineData?.risk === 'moderate' ? 'bg-warn/15 text-[#8A6100] border-warn/20' :
-                'bg-danger/15 text-danger border-danger/20'
+    const riskClass = medicineData?.risk === 'low' ? 'risk-badge-low' :
+        medicineData?.risk === 'moderate' ? 'risk-badge-moderate' : 'risk-badge-high'
 
     return (
-        <div className="p-6 md:p-10 max-w-5xl mx-auto w-full">
-            <div className="mb-8">
-                <h1 className="font-display text-2xl md:text-3xl font-extrabold text-navy leading-tight mb-2">
+        <div className="medicines-container">
+            <div className="medicines-header">
+                <h1 className="medicines-title">
                     Medicine Database
                 </h1>
-                <p className="text-[13px] text-text-muted max-w-2xl">
+                <p className="medicines-subtitle">
                     Search for medicines to securely understand usage, dosages, typical side effects, and warnings derived by AI.
                 </p>
             </div>
 
             {/* Search Bar */}
-            <div className="relative flex items-center gap-3 bg-white border-[1.5px] border-gray-200 rounded-xl p-3 shadow-sm mb-10 focus-within:border-teal transition-colors">
-                <Search className="text-gray-400 ml-2" size={20} />
+            <div className="search-container">
+                <Search className="search-icon" size={20} />
                 <input
                     type="text"
                     placeholder="Search by medicine name (e.g. Amoxicillin, Ibuprofen)"
@@ -129,14 +128,14 @@ export default function Medicines() {
                             handleSearch()
                         }
                     }}
-                    className="flex-1 border-none outline-none text-[14px] font-sans text-text-body bg-transparent placeholder:text-gray-400"
+                    className="search-input"
                     disabled={isLoading}
                     autoComplete="off"
                 />
                 <button
                     onClick={handleSearch}
                     disabled={!searchQuery.trim() || isLoading}
-                    className="bg-navy text-white px-5 py-2 rounded-lg text-[13px] font-medium hover:bg-slate transition-colors disabled:opacity-70 flex items-center gap-2"
+                    className="search-btn"
                 >
                     {isLoading && <Loader2 size={14} className="animate-spin" />}
                     {isLoading ? 'Searching...' : 'Search'}
@@ -146,7 +145,7 @@ export default function Medicines() {
                 {showSuggestions && suggestions.length > 0 && (
                     <div
                         ref={dropdownRef}
-                        className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-100 shadow-lg rounded-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-200"
+                        className="autocomplete-dropdown"
                     >
                         {suggestions.map((suggestion, idx) => (
                             <div
@@ -154,13 +153,11 @@ export default function Medicines() {
                                 onClick={() => {
                                     setSearchQuery(suggestion)
                                     setShowSuggestions(false)
-                                    // Optional: automatically search immediately after click
-                                    // handleSearch() - wait, we need state to update first, better to just set query
                                 }}
-                                className="px-5 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 border-b border-gray-50 last:border-0 transition-colors"
+                                className="autocomplete-item"
                             >
-                                <Search size={14} className="text-gray-400" />
-                                <span className="text-[14px] text-text-body font-medium">{suggestion}</span>
+                                <Search size={14} className="search-icon" style={{ marginLeft: 0 }} />
+                                <span className="autocomplete-text">{suggestion}</span>
                             </div>
                         ))}
                     </div>
@@ -169,7 +166,7 @@ export default function Medicines() {
 
             {/* Error Message */}
             {error && (
-                <div className="bg-danger/10 border border-danger/20 rounded-md p-4 flex items-center gap-3 text-danger text-[13px] font-medium mb-10">
+                <div className="error-message">
                     <AlertTriangle size={16} />
                     {error}
                 </div>
@@ -177,59 +174,52 @@ export default function Medicines() {
 
             {/* Result Card */}
             {medicineData && (
-                <div className="bg-white rounded-lg p-6 border border-gray-100 shadow-card animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                <div className="result-card">
+                    <div className="result-header">
                         <div>
-                            <h2 className="font-display text-xl font-bold text-navy mb-2">{medicineData.name}</h2>
-                            <span className="text-[10px] font-mono bg-navy/5 text-gray-500 px-3 py-1.5 rounded-full uppercase tracking-wider border border-navy/10">
+                            <h2 className="medicine-name">{medicineData.name}</h2>
+                            <span className="medicine-category">
                                 {medicineData.category}
                             </span>
                         </div>
-                        {medicineData.risk !== 'low' && (
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase ${riskColor}`}>
-                                <AlertTriangle size={12} />
-                                Risk: {medicineData.risk}
-                            </span>
-                        )}
-                        {medicineData.risk === 'low' && (
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase ${riskColor}`}>
-                                <ShieldAlert size={12} />
-                                Risk: {medicineData.risk}
-                            </span>
-                        )}
+
+                        <span className={`risk-badge ${riskClass}`}>
+                            {medicineData.risk === 'low' ? <ShieldAlert size={12} /> : <AlertTriangle size={12} />}
+                            Risk: {medicineData.risk}
+                        </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="flex flex-col gap-6">
-                            <div>
-                                <div className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.08em] mb-1.5 flex items-center gap-1.5">
+                    <div className="details-grid">
+                        <div className="info-column">
+                            <div className="info-box">
+                                <div className="info-label">
                                     <Info size={12} /> What it is used for
                                 </div>
-                                <div className="text-[13px] text-text-body leading-relaxed">{medicineData.usedFor}</div>
+                                <div className="info-text">{medicineData.usedFor}</div>
                             </div>
 
-                            <div>
-                                <div className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.08em] mb-1.5 flex items-center gap-1.5">
+                            <div className="info-box">
+                                <div className="info-label">
                                     <Activity size={12} /> How it works
                                 </div>
-                                <div className="text-[13px] text-text-body leading-relaxed">{medicineData.howItWorks}</div>
+                                <div className="info-text">{medicineData.howItWorks}</div>
                             </div>
 
-                            <div>
-                                <div className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.08em] mb-1.5 flex items-center gap-1.5">
+                            <div className="info-box">
+                                <div className="info-label">
                                     <Pill size={12} /> Typical Dosage
                                 </div>
-                                <div className="text-[13px] text-text-body font-medium leading-relaxed">{medicineData.typicalDosage}</div>
-                                <div className="text-[11px] text-gray-400 mt-1.5 italic">*General guidance only. Not medical advice. Always consult a healthcare professional.</div>
+                                <div className="info-text-medium">{medicineData.typicalDosage}</div>
+                                <div className="info-disclaimer">*General guidance only. Not medical advice. Always consult a healthcare professional.</div>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-6 bg-gray-100/50 p-5 rounded-xl border border-gray-100 h-fit">
+                        <div className="side-effects-box">
                             <div>
-                                <div className="text-[10px] font-mono text-gray-400 uppercase tracking-[0.08em] mb-2 flex items-center gap-1.5">
+                                <div className="info-label">
                                     <ShieldAlert size={12} /> Common Side Effects
                                 </div>
-                                <ul className="list-disc list-inside text-[13px] text-text-body space-y-1.5 marker:text-teal/60">
+                                <ul className="effects-list">
                                     {medicineData.sideEffects.map((effect, idx) => (
                                         <li key={idx}>{effect}</li>
                                     ))}
@@ -237,11 +227,11 @@ export default function Medicines() {
                             </div>
 
                             {medicineData.warnings && (
-                                <div className="mt-2 text-danger">
-                                    <div className="text-[10px] font-mono uppercase tracking-[0.08em] mb-1.5 flex items-center gap-1.5">
+                                <div className="warnings-section">
+                                    <div className="info-label" style={{ color: 'var(--color-danger)' }}>
                                         <AlertTriangle size={12} /> Important Warnings
                                     </div>
-                                    <div className="text-[13px] font-medium leading-relaxed bg-danger/5 p-3 rounded-md border border-danger/10">
+                                    <div className="warnings-text">
                                         {medicineData.warnings}
                                     </div>
                                 </div>
