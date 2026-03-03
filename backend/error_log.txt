@@ -1,2 +1,0 @@
-Success for https://router.huggingface.co/v1: Hello, how can I
-Error for https://router.huggingface.co/hf-inference/v1: 404 Not Found
