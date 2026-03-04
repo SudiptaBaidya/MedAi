@@ -10,7 +10,7 @@
 .auth-card {
     width: 100%;
     max-width: 28rem;
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     border-radius: 1rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     padding: 2rem;
@@ -117,7 +117,7 @@
 
 .auth-divider-text {
     padding-inline: 1rem;
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     color: var(--color-gray-500);
 }
 
@@ -128,7 +128,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     border: 2px solid var(--color-slate);
     color: var(--color-navy);
     font-weight: 600;

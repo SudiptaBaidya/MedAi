@@ -19,6 +19,7 @@
 
   --color-sky: #A8DFEC;
   --color-white: #FFFFFF;
+  --bg-surface: #FFFFFF;
 
   --color-gray-50: #F8FAFC;
   --color-gray-100: #F1F5F9;
@@ -38,6 +39,31 @@
   --shadow-float: 0 20px 40px -10px rgba(13, 148, 136, 0.15), 0 10px 20px -5px rgba(11, 31, 46, 0.1);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark-theme {
+  --bg-surface: #111827;
+  --color-gray-50: #030712;
+  --color-gray-100: #1f2937;
+  --color-gray-200: #374151;
+  --color-gray-400: #9ca3af;
+  --color-gray-600: #e5e7eb;
+
+  --color-text-body: #f9fafb;
+  --color-text-muted: #9ca3af;
+
+  --color-navy: #0f172a;
+  --color-navy-mid: #020617;
+
+  --color-slate: #1e293b;
+  --color-slate-light: #334155;
+
+  --color-mint: #064e3b;
+
+  --shadow-card: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+  --shadow-float: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 
 /* =========================================================================
@@ -123,7 +149,7 @@ a {
 
 /* Cards */
 .card {
-  background-color: var(--color-white);
+  background-color: var(--bg-surface);
   border-radius: 16px;
   padding: 1.75rem;
   border: 1px solid var(--color-gray-200);
@@ -184,7 +210,7 @@ a {
 }
 
 .btn-secondary {
-  background-color: var(--color-white);
+  background-color: var(--bg-surface);
   color: var(--color-teal);
   border: 1.5px solid var(--color-teal);
 }
@@ -267,7 +293,7 @@ a.link-hover:hover {
   font-size: 13px;
   font-family: inherit;
   color: var(--color-text-body);
-  background-color: var(--color-white);
+  background-color: var(--bg-surface);
   outline: none;
   transition: all 0.3s ease;
   width: 100%;

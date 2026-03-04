@@ -1,6 +1,6 @@
 .app-loading-container {
   min-height: 100vh;
-  background-color: var(--color-white);
+  background-color: var(--color-gray-50);
   display: flex;
   align-items: center;
   justify-content: center;

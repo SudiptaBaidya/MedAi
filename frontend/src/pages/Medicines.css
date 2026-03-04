@@ -42,7 +42,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     border: 1.5px solid var(--color-gray-200);
     border-radius: 0.75rem;
     padding: 0.75rem;
@@ -107,7 +107,7 @@
     left: 0;
     width: 100%;
     margin-top: 0.5rem;
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     border: 1px solid var(--color-gray-100);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-radius: 0.75rem;
@@ -169,7 +169,7 @@
 
 /* Result Card */
 .result-card {
-    background-color: var(--color-white);
+    background-color: var(--bg-surface);
     border-radius: 0.5rem;
     padding: 1.5rem;
     border: 1px solid var(--color-gray-100);

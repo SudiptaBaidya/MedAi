@@ -1,7 +1,7 @@
 .main-layout {
     display: flex;
     height: 100vh;
-    background-color: var(--color-white);
+    background-color: var(--color-gray-50);
 }
 
 .sidebar-overlay {
