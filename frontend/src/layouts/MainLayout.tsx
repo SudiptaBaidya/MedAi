@@ -79,7 +79,7 @@ export default function MainLayout() {
                         </div>
                     )}
 
-                    <Link to="/settings" className="settings-link">
+                    <Link to="/settings" className={`settings-link ${location.pathname === '/settings' ? 'active' : ''}`}>
                         <Settings size={16} />
                         Settings
                     </Link>
