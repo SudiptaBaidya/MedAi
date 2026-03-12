@@ -24,6 +24,8 @@
     font-weight: 800;
     color: var(--color-navy);
     line-height: 1.25;
+    letter-spacing: -0.025em;
+    /* Tighter letter spacing for sleeker look */
 }
 
 @media (min-width: 768px) {
@@ -33,15 +35,17 @@
 }
 
 .greeting-subtitle {
-    font-size: 13px;
+    font-size: 14px;
+    /* Slightly larger and readable */
     color: var(--color-text-muted);
     margin-top: 0.25rem;
 }
 
 /* We reuse .hero-banner and .btn-hero from index.css for the main banner box */
 .hero-box {
-    padding: 1.25rem;
-    margin-bottom: 2rem;
+    padding: 1.5rem 1.75rem;
+    /* Increased internal padding for breathing room */
+    margin-bottom: 2.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -50,14 +54,15 @@
 
 @media (min-width: 768px) {
     .hero-box {
-        padding: 1.5rem;
+        padding: 2rem 2.5rem;
+        /* Increased padding on larger screens */
         flex-direction: row;
         align-items: center;
     }
 }
 
 .hero-content {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 @media (min-width: 768px) {
@@ -94,22 +99,28 @@
 
 @media (min-width: 1024px) {
     .dashboard-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        /* 2x2 grid fits 4 cards perfectly */
     }
 }
 
-.feature-card {
-    /* Inherits from global .card */
+@media (min-width: 1280px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        /* Or 4 in a row on very wide screens */
+    }
 }
 
 .feature-icon-wrapper {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.375rem;
+    width: 2.75rem;
+    /* Slightly larger */
+    height: 2.75rem;
+    border-radius: 50%;
+    /* Perfectly circular icon wrapper */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .icon-teal {
@@ -125,6 +136,11 @@
 .icon-sky {
     background-color: rgba(168, 223, 236, 0.2);
     color: #2A7A8C;
+}
+
+.icon-purple {
+    background-color: rgba(168, 85, 247, 0.15);
+    color: #7E22CE;
 }
 
 .feature-title {
@@ -147,24 +163,54 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    transition: all 0.3s ease;
+    /* Ensure smooth transition on hover */
+}
+
+.feature-link:hover {
+    transform: translateX(4px);
+    opacity: 0.8;
 }
 
 .link-teal {
     color: var(--color-teal);
 }
 
+.link-teal:hover {
+    color: var(--color-teal-dark);
+}
+
+
 .link-warn {
     color: #8A6100;
 }
+
+.link-warn:hover {
+    color: rgba(138, 97, 0, 0.8);
+}
+
 
 .link-sky {
     color: #2A7A8C;
 }
 
+.link-sky:hover {
+    color: rgba(42, 122, 140, 0.8);
+}
+
+.link-purple {
+    color: #7E22CE;
+}
+
+.link-purple:hover {
+    color: rgba(126, 34, 206, 0.8);
+}
+
 .disclaimer-section {
-    margin-top: 2rem;
-    border-top: 1px solid var(--color-gray-100);
+    margin-top: 3rem;
     padding-top: 2rem;
+    display: flex;
+    justify-content: center;
 }
 
 .disclaimer-text {
@@ -172,11 +218,15 @@
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     color: var(--color-gray-400);
+    /* Slightly darker text for contrast */
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    background-color: var(--color-gray-100);
+    background-color: transparent;
+    /* Remove solid box */
+    border: 1px dashed var(--color-gray-200);
+    /* Soft dashed border instead */
     border-radius: 0.375rem;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     max-width: 42rem;
     margin-inline: auto;
 }

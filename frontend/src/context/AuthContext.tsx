@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { onIdTokenChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
 
 interface User {
@@ -11,6 +11,7 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
+    token: string | null;
     loading: boolean;
     loginWithGoogle: () => Promise<void>;
     logout: () => Promise<void>;
@@ -18,6 +19,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    token: null,
     loading: true,
     loginWithGoogle: async () => { },
     logout: async () => { },
@@ -27,13 +29,14 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                // Here we also might want to run the /api/auth/sync if they refresh 
-                // to make sure mongo knows about them, but it's okay to just set the user.
+                const currentToken = await firebaseUser.getIdToken();
+                setToken(currentToken);
                 setUser({
                     uid: firebaseUser.uid,
                     email: firebaseUser.email,
@@ -42,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 });
             } else {
                 setUser(null);
+                setToken(null);
             }
             setLoading(false);
         });
@@ -52,14 +56,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loginWithGoogle = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const token = await result.user.getIdToken();
+            const currentToken = await result.user.getIdToken();
+            setToken(currentToken);
 
             // Sync with our backend
             const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com'}/api/auth/sync`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${currentToken}`
                 }
             });
 
@@ -76,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = async () => {
         try {
             await signOut(auth);
+            setToken(null);
         } catch (error) {
             console.error('[AuthContext] Logout Failed:', error);
             throw error;
@@ -83,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+        <AuthContext.Provider value={{ user, token, loading, loginWithGoogle, logout }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Pill, Activity, ShieldAlert, ArrowRight } from 'lucide-react'
+import { Pill, Activity, ShieldAlert, FileText, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './Home.css'
@@ -78,6 +78,17 @@ export default function Home() {
                     <p className="feature-description">Review past symptom checks and AI structured guidance.</p>
                     <Link to="/chat" className="feature-link link-sky link-hover">
                         View reports <ArrowRight size={14} />
+                    </Link>
+                </div>
+
+                <div className="card feature-card">
+                    <div className="feature-icon-wrapper icon-purple">
+                        <FileText size={20} />
+                    </div>
+                    <h3 className="feature-title">Report Analysis</h3>
+                    <p className="feature-description">Upload your medical reports for instant, structured insights.</p>
+                    <Link to="/reports" className="feature-link link-purple link-hover">
+                        Analyze report <ArrowRight size={14} />
                     </Link>
                 </div>
             </div>

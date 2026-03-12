@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Search, Info, ShieldAlert, Activity, AlertTriangle, Pill, Loader2 } from 'lucide-react'
+import { Search, Info, ShieldAlert, Activity, AlertTriangle, Pill, Loader2, Mic, Bot, ShieldCheck, CheckCircle2, ChevronRight, Zap } from 'lucide-react'
 import './Medicines.css'
 
 // Define the expected structure from the backend AI
@@ -11,7 +11,9 @@ interface ParsedMedicineResponse {
     typicalDosage: string;
     sideEffects: string[];
     warnings: string;
-    risk: 'low' | 'moderate' | 'high';
+    risk: 'low' | 'moderate' | 'high' | 'unavailable';
+    safetyScore: number | null;
+    similarMedicines: string[];
 }
 
 export default function Medicines() {
@@ -23,6 +25,8 @@ export default function Medicines() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const dropdownRef = useRef<HTMLDivElement>(null)
+
+    const quickSuggestions = ['Paracetamol', 'Ibuprofen', 'Amoxicillin', 'Aspirin', 'Cetirizine']
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -64,19 +68,21 @@ export default function Medicines() {
         return () => clearTimeout(timer)
     }, [searchQuery])
 
-    const handleSearch = async () => {
-        if (!searchQuery.trim() || isLoading) return
+    const handleSearch = async (query?: string) => {
+        const term = query || searchQuery
+        if (!term.trim() || isLoading) return
 
         setIsLoading(true)
         setError(null)
         setMedicineData(null) // Clear previous result
         setShowSuggestions(false)
+        if (query) setSearchQuery(query)
 
         try {
             const response = await fetch(`${API_URL}/api/medicine/lookup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ medicineName: searchQuery })
+                body: JSON.stringify({ medicineName: term })
             })
 
             if (!response.ok) {
@@ -84,6 +90,11 @@ export default function Medicines() {
             }
 
             const data = await response.json()
+            
+            // Robust data mapping for similarMedicines
+            const rawSimilar = data.similarMedicines || data.similar_medicines || data.SimilarMedicines || [];
+            data.similarMedicines = Array.isArray(rawSimilar) ? rawSimilar : [rawSimilar];
+
             setMedicineData(data)
 
         } catch (err: any) {
@@ -94,147 +105,308 @@ export default function Medicines() {
         }
     }
 
-    const riskClass = medicineData?.risk === 'low' ? 'risk-badge-low' :
-        medicineData?.risk === 'moderate' ? 'risk-badge-moderate' : 'risk-badge-high'
+    const getRiskConfig = (risk: string, score: number | null) => {
+        switch (risk) {
+            case 'low':
+                return { 
+                    label: 'Low Risk', 
+                    class: 'risk-badge-low', 
+                    score: score ?? 90, 
+                    color: '#10b981', 
+                    hint: 'Generally safe for most adults' 
+                }
+            case 'moderate':
+                return { 
+                    label: 'Moderate Risk', 
+                    class: 'risk-badge-moderate', 
+                    score: score ?? 60, 
+                    color: '#f59e0b', 
+                    hint: 'Requires careful attention' 
+                }
+            case 'high':
+                return { 
+                    label: 'High Risk', 
+                    class: 'risk-badge-high', 
+                    score: score ?? 30, 
+                    color: '#ef4444', 
+                    hint: 'Higher potential for side effects' 
+                }
+            case 'unavailable':
+            default:
+                return { 
+                    label: 'Risk data unavailable', 
+                    class: '', 
+                    score: 0, 
+                    color: '#6b7280', 
+                    hint: 'Insufficient data' 
+                }
+        }
+    }
+
+    const riskConfig = medicineData ? getRiskConfig(medicineData.risk, medicineData.safetyScore) : null
 
     return (
         <div className="medicines-container">
+            {/* 1. Page Header */}
             <div className="medicines-header">
                 <h1 className="medicines-title">
-                    Medicine Database
+                    Medicine Intelligence Database
                 </h1>
                 <p className="medicines-subtitle">
-                    Search for medicines to securely understand usage, dosages, typical side effects, and warnings derived by AI.
+                    Search medicines to understand their uses, dosage, side effects, and safety insights powered by AI.
                 </p>
-            </div>
 
-            {/* Search Bar */}
-            <div className="search-container">
-                <Search className="search-icon" size={20} />
-                <input
-                    type="text"
-                    placeholder="Search by medicine name (e.g. Amoxicillin, Ibuprofen)"
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value)
-                        setShowSuggestions(true)
-                    }}
-                    onFocus={() => {
-                        if (suggestions.length > 0) setShowSuggestions(true)
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            setShowSuggestions(false)
-                            handleSearch()
-                        }
-                    }}
-                    className="search-input"
-                    disabled={isLoading}
-                    autoComplete="off"
-                />
-                <button
-                    onClick={handleSearch}
-                    disabled={!searchQuery.trim() || isLoading}
-                    className="search-btn"
-                >
-                    {isLoading && <Loader2 size={14} className="animate-spin" />}
-                    {isLoading ? 'Searching...' : 'Search'}
-                </button>
-
-                {/* Autocomplete Dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                    <div
-                        ref={dropdownRef}
-                        className="autocomplete-dropdown"
-                    >
-                        {suggestions.map((suggestion, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => {
-                                    setSearchQuery(suggestion)
+                {/* Search Bar Section */}
+                <div className="search-section">
+                    <div className="search-bar-wrapper">
+                        <Search className="inner-search-icon" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search for a medicine (e.g., Amoxicillin, Paracetamol)"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value)
+                                setShowSuggestions(true)
+                            }}
+                            onFocus={() => {
+                                if (suggestions.length > 0) setShowSuggestions(true)
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
                                     setShowSuggestions(false)
-                                }}
-                                className="autocomplete-item"
-                            >
-                                <Search size={14} className="search-icon" style={{ marginLeft: 0 }} />
-                                <span className="autocomplete-text">{suggestion}</span>
+                                    handleSearch()
+                                }
+                            }}
+                            className="enhanced-search-input"
+                            disabled={isLoading}
+                            autoComplete="off"
+                        />
+                        <button className="voice-btn" title="Voice search">
+                            <Mic size={18} />
+                        </button>
+                        <button
+                            onClick={() => handleSearch()}
+                            disabled={!searchQuery.trim() || isLoading}
+                            className="enhanced-search-btn"
+                        >
+                            {isLoading ? <Loader2 size={18} className="animate-spin" /> : "Search"}
+                        </button>
+
+                        {/* Autocomplete Dropdown */}
+                        {showSuggestions && suggestions.length > 0 && (
+                            <div ref={dropdownRef} className="modern-autocomplete-dropdown">
+                                {suggestions.map((suggestion, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => {
+                                            setSearchQuery(suggestion)
+                                            setShowSuggestions(false)
+                                            handleSearch(suggestion)
+                                        }}
+                                        className="modern-autocomplete-item"
+                                    >
+                                        <Search size={14} className="suggestion-icon" />
+                                        <span>{suggestion}</span>
+                                    </div>
+                                ))}
                             </div>
+                        )}
+                    </div>
+
+                    {/* 2. Quick Medicine Suggestions */}
+                    <div className="suggestions-chips">
+                        <span className="suggestions-label">Popular:</span>
+                        {quickSuggestions.map((med) => (
+                            <button
+                                key={med}
+                                className="suggestion-chip"
+                                onClick={() => handleSearch(med)}
+                            >
+                                {med}
+                            </button>
                         ))}
                     </div>
-                )}
+                </div>
             </div>
 
             {/* Error Message */}
             {error && (
-                <div className="error-message">
-                    <AlertTriangle size={16} />
-                    {error}
+                <div className="modern-error-message">
+                    <AlertTriangle size={18} />
+                    <span>{error}</span>
                 </div>
             )}
 
-            {/* Result Card */}
+            {/* Result Content */}
             {medicineData && (
-                <div className="result-card">
-                    <div className="result-header">
-                        <div>
-                            <h2 className="medicine-name">{medicineData.name}</h2>
-                            <span className="medicine-category">
-                                {medicineData.category}
-                            </span>
+                <div className="medicine-results-layout animate-fade-in">
+                    {/* 3. Medicine Overview Card */}
+                    <div className="overview-card">
+                        <div className="overview-header">
+                            <div className="medicine-identity">
+                                <div className="pills-icon">
+                                    <Pill size={24} />
+                                </div>
+                                <div>
+                                    <h2 className="med-main-name">{medicineData.name}</h2>
+                                    <div className="overview-badges">
+                                        <span className="med-type-badge">
+                                            <ShieldCheck size={12} />
+                                            {medicineData.category || 'Medicine'}
+                                        </span>
+                                        <span className={`risk-badge-v2 ${riskConfig?.class}`}>
+                                            {medicineData.risk === 'low' ? <ShieldCheck size={12} /> : <AlertTriangle size={12} />}
+                                            {riskConfig?.label}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 6. Medicine Safety Score Visualization */}
+                            <div className="safety-score-container">
+                                <div className="safety-score-header">
+                                    <span className="safety-label">Safety Score</span>
+                                    <span className="safety-value" style={{ color: riskConfig?.color }}>
+                                        {riskConfig?.score !== 0 ? `${riskConfig?.score}/100` : '—'}
+                                    </span>
+                                </div>
+                                <div className="safety-progress-wrapper">
+                                    <div
+                                        className="safety-progress-bar"
+                                        style={{
+                                            width: `${riskConfig?.score || 0}%`,
+                                            backgroundColor: riskConfig?.color
+                                        }}
+                                    ></div>
+                                </div>
+                                <p className="safety-hint">{riskConfig?.hint}</p>
+                            </div>
                         </div>
 
-                        <span className={`risk-badge ${riskClass}`}>
-                            {medicineData.risk === 'low' ? <ShieldAlert size={12} /> : <AlertTriangle size={12} />}
-                            Risk: {medicineData.risk}
-                        </span>
+                        {/* 4. Medicine Information Layout (Two Columns) */}
+                        <div className="med-details-columns">
+                            {/* Left Column: General Info */}
+                            <div className="med-column">
+                                <h3 className="column-title">Medicine Information</h3>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <Info size={16} className="section-icon info" />
+                                        <h4>What it is used for</h4>
+                                    </div>
+                                    <div className="section-content">
+                                        <p>{medicineData.usedFor}</p>
+                                    </div>
+                                </div>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <Activity size={16} className="section-icon activity" />
+                                        <h4>How it works</h4>
+                                    </div>
+                                    <div className="section-content">
+                                        <p>{medicineData.howItWorks}</p>
+                                    </div>
+                                </div>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <Pill size={16} className="section-icon pill" />
+                                        <h4>Typical dosage</h4>
+                                    </div>
+                                    <div className="section-content">
+                                        <p>{medicineData.typicalDosage}</p>
+                                    </div>
+                                </div>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <ShieldCheck size={16} className="section-icon safety" />
+                                        <h4>Precautions</h4>
+                                    </div>
+                                    <div className="section-content">
+                                        <p>Check with your doctor if you have allergies to similar medications or underlying conditions.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Safety Information */}
+                            <div className="med-column">
+                                <h3 className="column-title">Safety Information</h3>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <AlertTriangle size={16} className="section-icon warning" />
+                                        <h4>Common Side Effects</h4>
+                                    </div>
+                                    <ul className="modern-bullets">
+                                        {medicineData.sideEffects.slice(0, 5).map((effect, idx) => (
+                                            <li key={idx}><CheckCircle2 size={14} className="bullet-icon" /> {effect}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div className="med-info-section">
+                                    <div className="section-head">
+                                        <Zap size={16} className="section-icon interaction" />
+                                        <h4>Drug Interactions</h4>
+                                    </div>
+                                    <div className="section-content">
+                                        <p>Consult a healthcare professional regarding other medications you are currently taking.</p>
+                                    </div>
+                                </div>
+
+                                {medicineData.warnings && (
+                                    <div className="med-info-section critical">
+                                        <div className="section-head">
+                                            <AlertTriangle size={16} className="section-icon danger" />
+                                            <h4>Important Warnings</h4>
+                                        </div>
+                                        <div className="section-content">
+                                            <p>{medicineData.warnings}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 5. AI Explanation Section */}
+                        <div className="ai-explanation-panel">
+                            <div className="ai-panel-header">
+                                <Bot size={20} className="ai-icon" />
+                                <h3>AI Explanation</h3>
+                            </div>
+                            <div className="ai-content">
+                                <p>
+                                    {medicineData.name} {medicineData.howItWorks.toLowerCase().includes('bacteria') ? 'is an antibiotic' : 'is a medication'} primarily designed to help manage {medicineData.usedFor.toLowerCase()}. It works by {medicineData.howItWorks.toLowerCase()}. Always follow professional medical advice for your specific health needs.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="details-grid">
-                        <div className="info-column">
-                            <div className="info-box">
-                                <div className="info-label">
-                                    <Info size={12} /> What it is used for
-                                </div>
-                                <div className="info-text">{medicineData.usedFor}</div>
-                            </div>
-
-                            <div className="info-box">
-                                <div className="info-label">
-                                    <Activity size={12} /> How it works
-                                </div>
-                                <div className="info-text">{medicineData.howItWorks}</div>
-                            </div>
-
-                            <div className="info-box">
-                                <div className="info-label">
-                                    <Pill size={12} /> Typical Dosage
-                                </div>
-                                <div className="info-text-medium">{medicineData.typicalDosage}</div>
-                                <div className="info-disclaimer">*General guidance only. Not medical advice. Always consult a healthcare professional.</div>
-                            </div>
-                        </div>
-
-                        <div className="side-effects-box">
-                            <div>
-                                <div className="info-label">
-                                    <ShieldAlert size={12} /> Common Side Effects
-                                </div>
-                                <ul className="effects-list">
-                                    {medicineData.sideEffects.map((effect, idx) => (
-                                        <li key={idx}>{effect}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {medicineData.warnings && (
-                                <div className="warnings-section">
-                                    <div className="info-label" style={{ color: 'var(--color-danger)' }}>
-                                        <AlertTriangle size={12} /> Important Warnings
-                                    </div>
-                                    <div className="warnings-text">
-                                        {medicineData.warnings}
-                                    </div>
-                                </div>
+                    {/* 7. Related Medicines Section */}
+                    <div className="related-medicines-section">
+                        <h3 className="related-title">Similar Medicines</h3>
+                        <div className="related-grid">
+                            {medicineData.similarMedicines && medicineData.similarMedicines.length > 0 ? (
+                                medicineData.similarMedicines.map((medName, idx) => (
+                                    medName.toLowerCase().includes('no similar') ? (
+                                        <p key={idx} className="no-related-fallback">{medName}</p>
+                                    ) : (
+                                        <div key={idx} className="related-mini-card">
+                                            <h4>{medName}</h4>
+                                            <p>Clinical alternative or similar drug class.</p>
+                                            <button
+                                                className="view-related-btn"
+                                                onClick={() => handleSearch(medName)}
+                                            >
+                                                View Details <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    )
+                                ))
+                            ) : (
+                                <p className="no-related-fallback">No similar medicines found for this drug.</p>
                             )}
                         </div>
                     </div>

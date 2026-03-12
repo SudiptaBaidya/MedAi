@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react'
-import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Mic, Info, ChevronRight, Stethoscope, Pill, ArrowRightCircle, Trash2 } from 'lucide-react'
 import './Chat.css'
 
 // Define the expected structure from the backend AI
 interface ParsedAIResponse {
-    condition: string;
-    reason: string;
-    riskLevel: 'Low' | 'Moderate' | 'High';
+    type?: 'chat' | 'diagnosis';
+    message?: string; // For general chat
+    condition?: string; // For diagnosis
+    reason?: string;
+    riskLevel?: 'Low' | 'Moderate' | 'High';
     medicines?: string;
-    nextStep: string;
+    nextStep?: string;
 }
 
 interface Message {
@@ -22,6 +24,10 @@ interface Session {
     updatedAt: string;
 }
 
+const QUICK_SUGGESTIONS = [
+    "Headache", "Fever", "Stomach Pain", "Chest Pain", "Cough", "Fatigue"
+]
+
 export default function Chat() {
     const API_URL = import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com';
     const [input, setInput] = useState('')
@@ -31,10 +37,19 @@ export default function Chat() {
     const [isLoading, setIsLoading] = useState(false)
     const [sessions, setSessions] = useState<Session[]>([])
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
+    const messagesEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         fetchSessions()
     }, [])
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [messages, isLoading])
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
 
     const fetchSessions = async () => {
         try {
@@ -54,7 +69,6 @@ export default function Chat() {
             if (res.ok) {
                 const session = await res.json()
                 setCurrentSessionId(session._id)
-                // Filter out non-user/assistant valid messages and parse JSON
                 const loadedMessages = (session.messages || []).map((m: any) => {
                     let c = m.content
                     if (m.role === 'assistant' && typeof c === 'string') {
@@ -79,15 +93,33 @@ export default function Chat() {
         ])
     }
 
+    const deleteSession = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation() // Prevent loading the session when clicking delete
+        if (!window.confirm("Are you sure you want to delete this conversation?")) return
 
+        try {
+            const res = await fetch(`${API_URL}/api/chat/sessions/${id}`, {
+                method: 'DELETE'
+            })
+            if (res.ok) {
+                setSessions(prev => prev.filter(s => s._id !== id))
+                if (currentSessionId === id) {
+                    startNewChat()
+                }
+            } else {
+                console.error("Failed to delete session")
+            }
+        } catch (err) {
+            console.error("Failed to delete session", err)
+        }
+    }
 
-    const handleSend = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!input.trim() || isLoading) return
+    const handleSend = async (e?: React.FormEvent, customInput?: string) => {
+        if (e) e.preventDefault()
+        const messageToSend = customInput || input
+        if (!messageToSend.trim() || isLoading) return
 
-        // Add user message
-        const userMessage = input.trim()
-
+        const userMessage = messageToSend.trim()
         const newMessages: Message[] = [...messages, { role: 'user', content: userMessage }]
         setMessages(newMessages)
         setInput('')
@@ -106,7 +138,6 @@ export default function Chat() {
             if (!response.ok) {
                 try {
                     const errData = await response.json();
-                    console.error("Backend Error Details:", errData);
                     throw new Error(errData.details || 'Failed to analyze symptoms');
                 } catch (e) {
                     throw new Error('Failed to analyze symptoms');
@@ -114,10 +145,8 @@ export default function Chat() {
             }
 
             const data = await response.json()
-
             setMessages([...newMessages, { role: 'system', content: data.response }])
 
-            // If new session was created, refresh sidebar and set ID
             if (data.sessionId && data.sessionId !== currentSessionId) {
                 setCurrentSessionId(data.sessionId)
                 fetchSessions()
@@ -133,171 +162,228 @@ export default function Chat() {
         }
     }
 
-    // Helper to render AI structured JSON nicely based on Design Doc
     const renderMessageContent = (msg: Message) => {
         if (msg.role === 'user') {
             if (Array.isArray(msg.content)) {
                 const textPart = msg.content.find(p => p.type === 'text')?.text;
                 const imgPart = msg.content.find(p => p.type === 'image_url')?.image_url?.url;
                 return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {imgPart && <img src={imgPart} alt="Uploaded Symptom" style={{ maxWidth: '200px', borderRadius: '6px', border: '1px solid var(--color-teal-light)' }} />}
-                        {textPart && <div>{textPart}</div>}
+                    <div className="user-message-content">
+                        {imgPart && <img src={imgPart} alt="Uploaded Symptom" className="uploaded-symptom-img" />}
+                        {textPart && <p>{textPart}</p>}
                     </div>
                 );
             }
-            return <div>{msg.content as string}</div>
+            return <p>{msg.content as string}</p>
         } else if (typeof msg.content === 'string') {
-            return <div>{msg.content}</div>
+            return <p>{msg.content}</p>
         }
 
         const aiData = msg.content as ParsedAIResponse;
-        const riskClass = aiData.riskLevel.toLowerCase();
+
+        if (aiData.type === 'chat' && aiData.message) {
+            return <p>{aiData.message}</p>
+        }
+
+        const riskClass = aiData.riskLevel?.toLowerCase() || 'low';
 
         return (
-            <div className="ai-response-container">
-                <div className="ai-header">
-                    <h4 className="ai-condition">{aiData.condition}</h4>
-                    <span className={`ai-risk ${riskClass}`}>
-                        Risk: {aiData.riskLevel}
+            <div className="ai-diagnosis-card">
+                <div className="ai-diagnosis-header">
+                    <div className="ai-diagnosis-title-group">
+                        <Stethoscope className="ai-diagnosis-icon" size={18} />
+                        <h4 className="ai-condition">{aiData.condition || 'Analysis Complete'}</h4>
+                    </div>
+                    <span className={`ai-risk-badge ${riskClass}`}>
+                        {aiData.riskLevel || 'Low'} Risk
                     </span>
                 </div>
 
-                <div>
-                    <div className="ai-label">Reasoning</div>
-                    <div className="ai-text">{aiData.reason}</div>
+                <div className="ai-diagnosis-section">
+                    <div className="ai-section-header">
+                        <Info size={14} className="section-icon" />
+                        <span className="ai-section-label">Reasoning</span>
+                    </div>
+                    <p className="ai-section-text">{aiData.reason}</p>
                 </div>
 
                 {aiData.medicines && (
-                    <div className="ai-medicines">
-                        <div className="ai-label">Suggested Medicines</div>
-                        <div className="ai-text">{aiData.medicines}</div>
+                    <div className="ai-diagnosis-section highlight">
+                        <div className="ai-section-header">
+                            <Pill size={14} className="section-icon" />
+                            <span className="ai-section-label">Suggested Medicines</span>
+                        </div>
+                        <p className="ai-section-text">{aiData.medicines}</p>
                     </div>
                 )}
 
-                <div className="ai-next-step">
-                    <div className="ai-label">Suggested Next Step</div>
-                    <div className="ai-next-step-text">{aiData.nextStep}</div>
+                <div className="ai-diagnosis-footer">
+                    <div className="ai-section-header">
+                        <ChevronRight size={14} className="section-icon" />
+                        <span className="ai-section-label">Next Step Recommendation</span>
+                    </div>
+                    <p className="ai-next-step-text">{aiData.nextStep}</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="chat-app-container">
+        <div className="chat-page-container">
             {/* Sidebar */}
-            <div className="chat-sidebar">
-                <div className="chat-sidebar-header">
-                    <button
-                        onClick={startNewChat}
-                        className="new-chat-btn"
-                    >
-                        <MessageSquarePlus size={16} />
-                        New Chat
+            <aside className="chat-history-sidebar">
+                <div className="sidebar-action">
+                    <button onClick={startNewChat} className="btn-new-chat">
+                        <MessageSquarePlus size={18} />
+                        <span>New Conversation</span>
                     </button>
                 </div>
-                <div className="chat-history-list">
-                    <h3 className="history-label">Recent Chats</h3>
-                    {sessions.map(session => (
-                        <button
-                            key={session._id}
-                            onClick={() => loadSession(session._id)}
-                            className={`history-item ${currentSessionId === session._id ? 'active' : ''}`}
-                        >
-                            <MessageSquare size={14} className="history-item-icon" />
-                            <span className="history-item-text">{session.title}</span>
-                        </button>
-                    ))}
-                    {sessions.length === 0 && (
-                        <div className="history-empty">No history yet</div>
-                    )}
+                
+                <div className="sidebar-sessions">
+                    <h3 className="sidebar-label">Recent History</h3>
+                    <div className="sessions-scroll">
+                        {sessions.map(session => (
+                            <div
+                                key={session._id}
+                                onClick={() => loadSession(session._id)}
+                                className={`session-item ${currentSessionId === session._id ? 'active' : ''}`}
+                            >
+                                <div className="session-main-content">
+                                    <MessageSquare size={16} className="session-icon" />
+                                    <div className="session-info">
+                                        <span className="session-title">{session.title}</span>
+                                        <span className="session-preview">View symptoms analysis</span>
+                                    </div>
+                                </div>
+                                <button 
+                                    className="btn-delete-session"
+                                    onClick={(e) => deleteSession(e, session._id)}
+                                    title="Delete session"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                        ))}
+                        {sessions.length === 0 && (
+                            <div className="sessions-empty">
+                                <MessageSquare size={24} />
+                                <p>No chats yet</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </aside>
 
             {/* Main Chat Area */}
-            <div className="chat-main">
+            <main className="chat-main-container">
                 {/* Header Area */}
-                <div className="chat-header">
-                    <div>
-                        <h1 className="chat-header-title">Symptom Checker</h1>
-                        <p className="chat-header-subtitle">Describe how you feel for structured insights</p>
-                    </div>
-                </div>
-
-                {/* Chat Messages */}
-                <div className="chat-messages-container">
-
-                    {/* Initial Disclaimer */}
-                    <div className="disclaimer-box-wrapper">
-                        <div className="disclaimer-box">
-                            <AlertTriangle className="disclaimer-icon" size={16} />
-                            <p className="disclaimer-text-content">
-                                <strong>Disclaimer:</strong> This tool provides informational guidance only and does not replace professional medical advice, diagnosis, or treatment. If this is a medical emergency, call your local emergency services immediately.
-                            </p>
+                <header className="chat-page-header">
+                    <div className="header-content">
+                        <div className="title-area">
+                            <h1 className="page-title">AI Symptom Checker</h1>
+                            <p className="page-subtitle">Describe your symptoms and receive structured medical insights from AI.</p>
+                        </div>
+                        <div className="header-badges">
+                            <div className="ai-badge">
+                                <Bot size={14} />
+                                <span>AI-Generated</span>
+                            </div>
                         </div>
                     </div>
+                </header>
 
+                {/* Chat Messages */}
+                <div className="chat-viewport">
                     <div className="messages-list">
-                        {messages.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={`message-wrapper ${msg.role === 'user' ? 'user' : 'bot'}`}
-                            >
-                                <div className={`message-avatar ${msg.role === 'user' ? 'user' : 'bot'}`}>
-                                    {msg.role === 'user' ? <User size={14} /> : <Bot size={16} />}
+                        {/* Initial Disclaimer */}
+                        <div className="disclaimer-alert">
+                            <div className="disclaimer-content">
+                                <AlertTriangle className="disclaimer-icon" size={18} />
+                                <div>
+                                    <span className="disclaimer-title">Medical Disclaimer</span>
+                                    <p className="disclaimer-text">
+                                        This tool provides informational guidance only and does not replace professional medical advice. Always consult with a qualified healthcare provider.
+                                    </p>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div className={`message-bubble ${msg.role === 'user' ? 'user' : 'bot'}`}>
-                                    {renderMessageContent(msg)}
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`message-row ${msg.role === 'user' ? 'user' : 'bot'}`}>
+                                <div className="message-avatar-wrap">
+                                    {msg.role === 'user' ? (
+                                        <div className="avatar user"><User size={16} /></div>
+                                    ) : (
+                                        <div className="avatar bot"><Bot size={18} /></div>
+                                    )}
+                                </div>
+                                <div className="message-bubble-wrap">
+                                    <div className={`message-bubble ${msg.role === 'user' ? 'user' : 'bot'}`}>
+                                        {renderMessageContent(msg)}
+                                    </div>
                                 </div>
                             </div>
                         ))}
 
                         {isLoading && (
-                            <div className="message-wrapper bot">
-                                <div className="message-avatar bot">
-                                    <Bot size={16} />
+                            <div className="message-row bot">
+                                <div className="message-avatar-wrap">
+                                    <div className="avatar bot"><Bot size={18} /></div>
                                 </div>
-                                <div className="loading-indicator">
-                                    <Loader2 className="loading-spinner" size={16} />
-                                    <span className="loading-text">Analyzing symptoms securely...</span>
+                                <div className="message-bubble-wrap">
+                                    <div className="loading-card">
+                                        <Loader2 className="spinner" size={18} />
+                                        <span>MedAI is analyzing your symptoms...</span>
+                                    </div>
                                 </div>
                             </div>
                         )}
+                        <div ref={messagesEndRef} />
                     </div>
                 </div>
 
                 {/* Input Area */}
-                <div className="chat-input-area">
-                    <form
-                        onSubmit={handleSend}
-                        className="chat-form"
-                    >
-                        <div className="chat-input-wrapper">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                disabled={isLoading}
-                                placeholder="Type your symptoms (e.g., 'I have had a dull headache for 2 days')..."
-                                className="chat-input"
-                            />
-                            <button
-                                type="submit"
-                                disabled={!input.trim() || isLoading}
-                                className="chat-send-btn"
-                            >
-                                <Send size={16} className="chat-icon-align" />
-                            </button>
+                <footer className="chat-input-container">
+                    <div className="input-panel">
+                        {/* Quick Suggestions */}
+                        <div className="suggestions-bar">
+                            {QUICK_SUGGESTIONS.map(symptom => (
+                                <button 
+                                    key={symptom} 
+                                    className="suggestion-chip"
+                                    onClick={() => setInput(symptom)}
+                                >
+                                    {symptom}
+                                </button>
+                            ))}
                         </div>
-                    </form>
-                    <div className="chat-footer">
-                        <span className="chat-footer-text">
-                            AI-generated content. Verify important information.
-                        </span>
+
+                        <form onSubmit={handleSend} className="chat-input-form">
+                            <div className="input-group">
+                                <button type="button" className="action-btn mic-btn" title="Voice Input">
+                                    <Mic size={20} />
+                                </button>
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    disabled={isLoading}
+                                    placeholder="Describe your symptoms (e.g., headache, fever, stomach pain...)"
+                                    className="main-input"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!input.trim() || isLoading}
+                                    className="btn-send-circular"
+                                >
+                                    <ArrowRightCircle size={24} />
+                                </button>
+                            </div>
+                        </form>
+                        <p className="input-footer">AI results may vary. Consult a professional for critical health decisions.</p>
                     </div>
-                </div>
-            </div>
+                </footer>
+            </main>
         </div>
     )
 }

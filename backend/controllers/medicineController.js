@@ -17,6 +17,28 @@ SAFETY BOUNDARIES:
 2. DO NOT endorse the use of off-label prescriptions.
 3. Keep descriptions plain-language and clear. Avoid excessive jargon.
 
+STRICT LOGIC RULES:
+1. RISK SCORE CALCULATION:
+   Base score = 100.
+   Subtract points based on the data you find:
+   - Minor side effects (e.g., headache, mild nausea) → -5 each.
+   - Moderate side effects (e.g., severe vomiting, dizziness) → -10 each.
+   - Major drug interactions → -15 each.
+   - Serious warnings / contraindications → -20 each.
+   Final score must be clamped between 0 and 100.
+   - Score 80–100 → risk: "low"
+   - Score 50–79 → risk: "moderate"
+   - Score below 50 → risk: "high"
+   If you cannot determine risk factors, return risk: "unavailable" and score: null.
+
+2. SIMILAR MEDICINES:
+   You MUST ALWAYS provide 3-4 medicine names that are related.
+   Matches can be:
+   - Within the same class (e.g., Cetirizine -> Loratadine, Fexofenadine)
+   - Same use (e.g., Paracetamol -> Ibuprofen, Naproxen)
+   - Same family (e.g., Amoxicillin -> Ampicillin, Penicillin)
+   Never leave this array empty. Never return "No similar medicines found". If you are unsure, provide the most common alternatives for the condition being treated.
+
 FORMAT INSTRUCTIONS:
 Respond ONLY with this JSON exact framework:
 {
@@ -27,7 +49,9 @@ Respond ONLY with this JSON exact framework:
   "typicalDosage": "Standard adult dose example",
   "sideEffects": ["Array", "Of", "Common", "Effects"],
   "warnings": "Important contraindications",
-  "risk": "low" | "moderate" | "high"  
+  "risk": "low" | "moderate" | "high" | "unavailable",
+  "safetyScore": number | null,
+  "similarMedicines": ["Array", "Of", "Medicine", "Names"]
 }
 `
 
@@ -41,7 +65,7 @@ export const lookupMedicine = async (req, res) => {
 
         const completion = await openai.chat.completions.create({
             model: "meta-llama/Meta-Llama-3-8B-Instruct",
-            max_tokens: 500,
+            max_tokens: 700,
             messages: [
                 { role: "system", content: SYSTEM_PROMPT_MEDICINE },
                 { role: "user", content: `Please provide information for: ${medicineName}` }
@@ -50,7 +74,27 @@ export const lookupMedicine = async (req, res) => {
             response_format: { type: "json_object" }
         })
 
-        const parsedResponse = JSON.parse(completion.choices[0].message.content)
+        const rawContent = completion.choices[0].message.content
+        console.log('[Medicine AI Response]:', rawContent)
+
+        let parsedResponse = JSON.parse(rawContent)
+
+        // Defensive mapping to ensure frontend gets what it needs
+        if (!parsedResponse.similarMedicines || !Array.isArray(parsedResponse.similarMedicines) || parsedResponse.similarMedicines.length === 0) {
+            console.log('[Medicine AI] missing or empty similarMedicines, generating defaults...');
+            const category = (parsedResponse.category || '').toLowerCase();
+            const name = (parsedResponse.name || '').toLowerCase();
+
+            if (category.includes('anti') || category.includes('histamine') || name.includes('cetirizine')) {
+                parsedResponse.similarMedicines = ['Loratadine', 'Fexofenadine', 'Levocetirizine'];
+            } else if (category.includes('analgesic') || category.includes('pain') || name.includes('paracetamol') || name.includes('dolo')) {
+                parsedResponse.similarMedicines = ['Ibuprofen', 'Naproxen', 'Aspirin'];
+            } else if (category.includes('antibiotic') || name.includes('amoxicillin')) {
+                parsedResponse.similarMedicines = ['Ampicillin', 'Penicillin', 'Augmentin'];
+            } else {
+                parsedResponse.similarMedicines = [];
+            }
+        }
 
         res.status(200).json(parsedResponse)
 

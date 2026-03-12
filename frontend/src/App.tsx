@@ -6,6 +6,7 @@ import Chat from './pages/Chat'
 import Medicines from './pages/Medicines'
 import Auth from './pages/Auth'
 import Settings from './pages/Settings'
+import Reports from './pages/Reports'
 import './App.css'
 
 // A simple wrapper to protect routes
@@ -44,6 +45,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="chat" element={<Chat />} />
             <Route path="medicines" element={<Medicines />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>

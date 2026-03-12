@@ -13,6 +13,7 @@ export default function MainLayout() {
         { name: 'Dashboard', path: '/', icon: Activity },
         { name: 'Medicines', path: '/medicines', icon: Pill },
         { name: 'Symptom Checker', path: '/chat', icon: MessageSquare },
+        { name: 'Medical Reports', path: '/reports', icon: Activity },
     ]
 
     return (

@@ -7,6 +7,7 @@ import mongoose from 'mongoose'
 import chatRoutes from './routes/chatRoutes.js'
 import medicineRoutes from './routes/medicineRoutes.js'
 import authRoutes from './routes/authRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 
 dotenv.config()
 
@@ -35,6 +36,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/medai')
 app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/medicine', medicineRoutes)
+app.use('/api/reports', reportRoutes)
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'active', message: 'MedAI API is running.' })

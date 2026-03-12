@@ -21,7 +21,8 @@
   --color-white: #FFFFFF;
   --bg-surface: #FFFFFF;
 
-  --color-gray-50: #F8FAFC;
+  --color-gray-50: #EAEFF5;
+  /* Visibly distinct from pure white cards */
   --color-gray-100: #F1F5F9;
   --color-gray-200: #E2E8F0;
   --color-gray-400: #94A3B8;
@@ -122,9 +123,23 @@ a {
 
 /* Hero Banner */
 .hero-banner {
-  background: linear-gradient(135deg, var(--color-teal-light) 0%, var(--color-teal-dark) 100%);
-  box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #0D9488 0%, #042F2E 100%);
+  /* Visibly darker and richer */
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -10px rgba(13, 148, 136, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-radius: 24px;
+}
+
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 150%;
+  background: radial-gradient(circle at center, rgba(45, 212, 191, 0.2) 0%, transparent 60%);
+  pointer-events: none;
 }
 
 .hero-banner a.btn-hero {
