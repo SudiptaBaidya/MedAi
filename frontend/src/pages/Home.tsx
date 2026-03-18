@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Pill, Activity, ShieldAlert, FileText, ArrowRight } from 'lucide-react'
+import { Pill, Activity, ShieldAlert, FileText, ArrowRight, MessageSquare, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import './Home.css'
@@ -50,12 +50,23 @@ export default function Home() {
             <div className="dashboard-grid">
                 <div className="card feature-card">
                     <div className="feature-icon-wrapper icon-teal">
+                        <MessageSquare size={20} />
+                    </div>
+                    <h3 className="feature-title">Symptom Checker</h3>
+                    <p className="feature-description">Chat with our AI to understand your current symptoms.</p>
+                    <Link to="/chat" className="feature-link link-teal link-hover">
+                        Start chat <ArrowRight size={14} />
+                    </Link>
+                </div>
+
+                <div className="card feature-card">
+                    <div className="feature-icon-wrapper icon-sky">
                         <Activity size={20} />
                     </div>
-                    <h3 className="feature-title">Recent Searches</h3>
-                    <p className="feature-description">You recently looked up interactions for Amoxicillin.</p>
-                    <Link to="/medicines" className="feature-link link-teal link-hover">
-                        View history <ArrowRight size={14} />
+                    <h3 className="feature-title">3D Body Map</h3>
+                    <p className="feature-description">Pinpoint your pain visually using our interactive 3D model.</p>
+                    <Link to="/symptoms" className="feature-link link-sky link-hover">
+                        Explore body map <ArrowRight size={14} />
                     </Link>
                 </div>
 
@@ -64,20 +75,9 @@ export default function Home() {
                         <Pill size={20} />
                     </div>
                     <h3 className="feature-title">Medicine Database</h3>
-                    <p className="feature-description">Search our extensive database for dosages and side effects.</p>
+                    <p className="feature-description">Search our database for dosages and side effects.</p>
                     <Link to="/medicines" className="feature-link link-warn link-hover">
                         Search medicines <ArrowRight size={14} />
-                    </Link>
-                </div>
-
-                <div className="card feature-card">
-                    <div className="feature-icon-wrapper icon-sky">
-                        <ShieldAlert size={20} />
-                    </div>
-                    <h3 className="feature-title">Symptom History</h3>
-                    <p className="feature-description">Review past symptom checks and AI structured guidance.</p>
-                    <Link to="/chat" className="feature-link link-sky link-hover">
-                        View reports <ArrowRight size={14} />
                     </Link>
                 </div>
 
@@ -89,6 +89,28 @@ export default function Home() {
                     <p className="feature-description">Upload your medical reports for instant, structured insights.</p>
                     <Link to="/reports" className="feature-link link-purple link-hover">
                         Analyze report <ArrowRight size={14} />
+                    </Link>
+                </div>
+
+                <div className="card feature-card">
+                    <div className="feature-icon-wrapper icon-blue">
+                        <ShieldAlert size={20} />
+                    </div>
+                    <h3 className="feature-title">Symptom History</h3>
+                    <p className="feature-description">Review past symptom checks and AI structured guidance.</p>
+                    <Link to="/chat" className="feature-link link-blue link-hover">
+                        View reports <ArrowRight size={14} />
+                    </Link>
+                </div>
+
+                <div className="card feature-card">
+                    <div className="feature-icon-wrapper icon-gray">
+                        <Settings size={20} />
+                    </div>
+                    <h3 className="feature-title">Settings</h3>
+                    <p className="feature-description">Manage your account preferences and application settings.</p>
+                    <Link to="/settings" className="feature-link link-gray link-hover">
+                        Open settings <ArrowRight size={14} />
                     </Link>
                 </div>
             </div>

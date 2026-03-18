@@ -143,6 +143,16 @@
     color: #7E22CE;
 }
 
+.icon-blue {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.icon-gray {
+    background-color: rgba(107, 114, 128, 0.15);
+    color: #4b5563;
+}
+
 .feature-title {
     font-family: 'Inter', 'Syne', sans-serif;
     font-size: 15px;
@@ -204,6 +214,22 @@
 
 .link-purple:hover {
     color: rgba(126, 34, 206, 0.8);
+}
+
+.link-blue {
+    color: #3b82f6;
+}
+
+.link-blue:hover {
+    color: rgba(59, 130, 246, 0.8);
+}
+
+.link-gray {
+    color: #4b5563;
+}
+
+.link-gray:hover {
+    color: rgba(75, 85, 99, 0.8);
 }
 
 .disclaimer-section {
