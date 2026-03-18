@@ -18,7 +18,86 @@
 
 @media (max-width: 1024px) {
     .chat-history-sidebar {
-        display: none; /* Hide sidebar on mobile/tablet for now or implement a drawer */
+        position: fixed;
+        inset-block: 0;
+        left: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+        width: 300px;
+    }
+
+    .chat-history-sidebar.open {
+        transform: translateX(0);
+    }
+}
+
+.chat-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(11, 31, 46, 0.4);
+    z-index: 40;
+    backdrop-filter: blur(2px);
+    opacity: 1;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #475569;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    margin-right: 0.5rem;
+}
+
+.mobile-menu-toggle:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+@media (max-width: 1024px) {
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.title-area-container {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-sidebar-close {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.mobile-sidebar-close:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+@media (max-width: 1024px) {
+    .mobile-sidebar-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 

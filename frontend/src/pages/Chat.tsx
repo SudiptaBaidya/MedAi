@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Mic, Info, ChevronRight, Stethoscope, Pill, ArrowRightCircle, Trash2, Search } from 'lucide-react'
+import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Mic, Info, ChevronRight, Stethoscope, Pill, ArrowRightCircle, Trash2, Search, Menu, X } from 'lucide-react'
 import './Chat.css'
 import { useAuth } from '../context/AuthContext'
 
@@ -333,12 +333,27 @@ export default function Chat() {
 
     return (
         <div className="chat-page-container">
+            {/* Sidebar Overlay for Mobile */}
+            {isSidebarOpen && (
+                <div 
+                    className="chat-sidebar-overlay" 
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="chat-history-sidebar">
-                <div className="sidebar-action">
-                    <button onClick={startNewChat} className="btn-new-chat">
+            <aside className={`chat-history-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-action" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button onClick={startNewChat} className="btn-new-chat" style={{ flex: 1 }}>
                         <MessageSquarePlus size={18} />
                         <span>New Conversation</span>
+                    </button>
+                    <button 
+                        className="mobile-sidebar-close" 
+                        onClick={() => setIsSidebarOpen(false)}
+                        aria-label="Close sidebar"
+                    >
+                        <X size={20} />
                     </button>
                 </div>
 
@@ -382,9 +397,18 @@ export default function Chat() {
                 {/* Header Area */}
                 <header className="chat-page-header">
                     <div className="header-content">
-                        <div className="title-area">
-                            <h1 className="page-title">AI Symptom Checker</h1>
-                            <p className="page-subtitle">Describe your symptoms and receive structured medical insights from AI.</p>
+                        <div className="title-area-container">
+                            <button 
+                                className="mobile-menu-toggle"
+                                onClick={() => setIsSidebarOpen(true)}
+                                aria-label="Open sidebar"
+                            >
+                                <Menu size={24} />
+                            </button>
+                            <div className="title-area">
+                                <h1 className="page-title">AI Symptom Checker</h1>
+                                <p className="page-subtitle" style={{ display: 'none' }}>Describe your symptoms and receive structured medical insights from AI.</p>
+                            </div>
                         </div>
                         <div className="header-badges">
                             <div className="ai-badge">
