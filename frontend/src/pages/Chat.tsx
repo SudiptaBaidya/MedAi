@@ -45,6 +45,7 @@ export default function Chat() {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const recognitionRef = useRef<any>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     useEffect(() => {
         fetchSessions()
