@@ -8,6 +8,7 @@ import chatRoutes from './routes/chatRoutes.js'
 import medicineRoutes from './routes/medicineRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
+import symptomRoutes from './routes/symptomRoutes.js'
 
 dotenv.config()
 
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/medicine', medicineRoutes)
 app.use('/api/reports', reportRoutes)
+app.use('/api/symptoms', symptomRoutes)
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'active', message: 'MedAI API is running.' })

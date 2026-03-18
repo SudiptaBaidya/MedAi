@@ -12,6 +12,7 @@ export default function MainLayout() {
     const navLinks = [
         { name: 'Dashboard', path: '/', icon: Activity },
         { name: 'Symptom Checker', path: '/chat', icon: MessageSquare },
+        { name: '3D Body Map', path: '/symptoms', icon: Activity },
         { name: 'Medicines', path: '/medicines', icon: Pill },
         { name: 'Medical Reports', path: '/reports', icon: Activity },
     ]
