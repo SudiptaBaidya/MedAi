@@ -216,3 +216,29 @@ export const deleteSession = async (req, res) => {
         res.status(500).json({ error: 'Failed to delete session' });
     }
 }
+
+export const generateSymptoms = async (req, res) => {
+    try {
+        const { bodyPart } = req.body
+
+        if (!bodyPart) {
+            return res.status(400).json({ error: 'Body part is required' })
+        }
+
+        const prompt = `Generate a list of common medical symptoms related to the body part: ${bodyPart}. Return 8 short symptom options in JSON format. Use this exact format: { "symptoms": ["Symptom 1", "Symptom 2", ...] }`
+
+        const completion = await openai.chat.completions.create({
+            model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+            max_tokens: 200,
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            response_format: { type: "json_object" }
+        });
+
+        const parsedResponse = JSON.parse(completion.choices[0].message.content);
+        res.status(200).json(parsedResponse);
+    } catch (error) {
+        console.error('[Generate Symptoms Error]', error);
+        res.status(500).json({ error: 'Failed to generate symptoms', details: error.message });
+    }
+}

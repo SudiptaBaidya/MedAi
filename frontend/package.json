@@ -9,11 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.121.5",
+    "@react-three/fiber": "^8.17.14",
     "firebase": "^12.10.0",
     "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.2.0"
+    "react-router-dom": "^7.2.0",
+    "three": "^0.160.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

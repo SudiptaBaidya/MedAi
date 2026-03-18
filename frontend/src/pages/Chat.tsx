@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Mic, Info, ChevronRight, Stethoscope, Pill, ArrowRightCircle, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Send, User, Bot, AlertTriangle, Loader2, MessageSquarePlus, MessageSquare, Mic, Info, ChevronRight, Stethoscope, Pill, ArrowRightCircle, Trash2, Search } from 'lucide-react'
 import './Chat.css'
+import { useAuth } from '../context/AuthContext'
 
 // Define the expected structure from the backend AI
 interface ParsedAIResponse {
@@ -30,14 +32,19 @@ const QUICK_SUGGESTIONS = [
 
 export default function Chat() {
     const API_URL = import.meta.env.VITE_API_URL || 'https://medai-utym.onrender.com';
+    const { user } = useAuth()
     const [input, setInput] = useState('')
     const [messages, setMessages] = useState<Message[]>([
         { role: 'system', content: 'Hi, I am MedAI. How can I help you today? Please describe your symptoms.' }
     ])
     const [isLoading, setIsLoading] = useState(false)
+    const [isListening, setIsListening] = useState(false)
+    const [autoSubmit, setAutoSubmit] = useState(false)
     const [sessions, setSessions] = useState<Session[]>([])
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const recognitionRef = useRef<any>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     useEffect(() => {
         fetchSessions()
@@ -46,6 +53,23 @@ export default function Chat() {
     useEffect(() => {
         scrollToBottom()
     }, [messages, isLoading])
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+        }
+    }, [input]);
+
+    useEffect(() => {
+        if (autoSubmit) {
+            if (input.trim() && !isLoading) {
+                handleSend();
+            }
+            setAutoSubmit(false);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoSubmit]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -116,6 +140,14 @@ export default function Chat() {
 
     const handleSend = async (e?: React.FormEvent, customInput?: string) => {
         if (e) e.preventDefault()
+        
+        if (recognitionRef.current) {
+            try {
+                recognitionRef.current.stop();
+            } catch(err) {}
+        }
+        setIsListening(false);
+
         const messageToSend = customInput || input
         if (!messageToSend.trim() || isLoading) return
 
@@ -161,6 +193,70 @@ export default function Chat() {
             setIsLoading(false)
         }
     }
+
+    const handleVoiceInput = () => {
+        // @ts-ignore
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Your browser doesn't support speech recognition.");
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        let transcriptBuffer = input;
+
+        recognition.onresult = (event: any) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                transcriptBuffer += (transcriptBuffer.endsWith(' ') || !transcriptBuffer ? '' : ' ') + finalTranscript;
+            }
+
+            const displayTranscript = transcriptBuffer + (transcriptBuffer && interimTranscript ? ' ' : '') + interimTranscript;
+            setInput(displayTranscript);
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error("Speech recognition error", event.error);
+            setIsListening(false);
+            if (event.error === 'network') {
+                alert("Speech recognition failed due to a network error. If you are using Brave or a privacy-focused browser, the built-in speech API might be blocked. Please try using Chrome, Edge, or Safari.");
+            } else if (event.error === 'not-allowed') {
+                alert("Microphone access was denied. Please allow microphone access in your browser settings to use voice chat.");
+            }
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+            setAutoSubmit(true);
+        };
+
+        recognition.start();
+    };
 
     const renderMessageContent = (msg: Message) => {
         if (msg.role === 'user') {
@@ -228,6 +324,13 @@ export default function Chat() {
         )
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+
     return (
         <div className="chat-page-container">
             {/* Sidebar */}
@@ -238,7 +341,7 @@ export default function Chat() {
                         <span>New Conversation</span>
                     </button>
                 </div>
-                
+
                 <div className="sidebar-sessions">
                     <h3 className="sidebar-label">Recent History</h3>
                     <div className="sessions-scroll">
@@ -255,7 +358,7 @@ export default function Chat() {
                                         <span className="session-preview">View symptoms analysis</span>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     className="btn-delete-session"
                                     onClick={(e) => deleteSession(e, session._id)}
                                     title="Delete session"
@@ -312,7 +415,13 @@ export default function Chat() {
                             <div key={index} className={`message-row ${msg.role === 'user' ? 'user' : 'bot'}`}>
                                 <div className="message-avatar-wrap">
                                     {msg.role === 'user' ? (
-                                        <div className="avatar user"><User size={16} /></div>
+                                        <div className="avatar user" style={{ padding: user?.photoURL ? 0 : undefined, overflow: 'hidden' }}>
+                                            {user?.photoURL ? (
+                                                <img src={user.photoURL} alt={user?.name || "User"} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            ) : (
+                                                <User size={16} />
+                                            )}
+                                        </div>
                                     ) : (
                                         <div className="avatar bot"><Bot size={18} /></div>
                                     )}
@@ -345,11 +454,14 @@ export default function Chat() {
                 {/* Input Area */}
                 <footer className="chat-input-container">
                     <div className="input-panel">
+                        {/* Tip Link to Body Map */}
+
+
                         {/* Quick Suggestions */}
                         <div className="suggestions-bar">
                             {QUICK_SUGGESTIONS.map(symptom => (
-                                <button 
-                                    key={symptom} 
+                                <button
+                                    key={symptom}
                                     className="suggestion-chip"
                                     onClick={() => setInput(symptom)}
                                 >
@@ -358,26 +470,36 @@ export default function Chat() {
                             ))}
                         </div>
 
-                        <form onSubmit={handleSend} className="chat-input-form">
-                            <div className="input-group">
-                                <button type="button" className="action-btn mic-btn" title="Voice Input">
-                                    <Mic size={20} />
-                                </button>
-                                <input
-                                    type="text"
+                        <form onSubmit={handleSend} className="modern-chat-input-form">
+                            <div className="modern-input-wrapper">
+                                <Search className="input-icon-left" size={20} />
+                                <textarea
+                                    ref={textareaRef}
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                     disabled={isLoading}
                                     placeholder="Describe your symptoms (e.g., headache, fever, stomach pain...)"
-                                    className="main-input"
+                                    className="modern-textarea"
+                                    rows={1}
                                 />
-                                <button
-                                    type="submit"
-                                    disabled={!input.trim() || isLoading}
-                                    className="btn-send-circular"
-                                >
-                                    <ArrowRightCircle size={24} />
-                                </button>
+                                <div className="modern-actions-right">
+                                    <button 
+                                        type="button" 
+                                        className={`modern-mic-btn ${isListening ? 'active' : ''}`}
+                                        title={isListening ? "Listening... Click to stop" : "Voice Input"}
+                                        onClick={handleVoiceInput}
+                                    >
+                                        <Mic size={20} />
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={!input.trim() || isLoading}
+                                        className="modern-send-btn"
+                                    >
+                                        Search
+                                    </button>
+                                </div>
                             </div>
                         </form>
                         <p className="input-footer">AI results may vary. Consult a professional for critical health decisions.</p>
