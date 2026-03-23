@@ -573,4 +573,104 @@
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Smartphone Responsive Constraints */
+@media (max-width: 640px) {
+    .medicines-container {
+        padding: 1rem;
+    }
+    
+    .medicines-header {
+        margin-bottom: 2rem;
+    }
+    
+    .medicines-title {
+        font-size: 1.75rem;
+    }
+    
+    .medicines-subtitle {
+        font-size: 0.9375rem;
+    }
+    
+    .search-section {
+        margin-top: 1.5rem;
+    }
+    
+    .search-bar-wrapper {
+        border-radius: 1rem;
+        padding: 0.35rem;
+    }
+    
+    .inner-search-icon {
+        margin-left: 0.75rem;
+    }
+    
+    .enhanced-search-input {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .enhanced-search-btn {
+        padding: 0.6rem 1rem;
+        border-radius: 0.75rem;
+    }
+    
+    .medicine-identity {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .overview-card {
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+    
+    .med-main-name {
+        font-size: 1.5rem;
+    }
+    
+    .overview-badges {
+        justify-content: center;
+    }
+    
+    .overview-header {
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    .safety-score-container {
+        max-width: 100%;
+    }
+    
+    .column-title {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .med-details-columns {
+        gap: 2rem;
+    }
+    
+    .ai-explanation-panel {
+        margin-top: 2rem;
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+    
+    .related-medicines-section {
+        margin-top: 2.5rem;
+    }
+    
+    .related-title {
+        font-size: 1.125rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .related-mini-card {
+        padding: 1.25rem;
+    }
 }

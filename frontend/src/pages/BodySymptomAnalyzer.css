@@ -404,3 +404,28 @@
     height: auto;
   }
 }
+
+@media (max-width: 768px) {
+  .analyzer-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .analyzer-header .page-title {
+    font-size: 1.25rem;
+  }
+
+  .analyzer-layout {
+    grid-template-rows: auto 350px auto;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .controls-panel, .symptom-panel {
+    padding: 1rem;
+  }
+
+  .ai-badge {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
