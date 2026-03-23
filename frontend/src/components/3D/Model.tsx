@@ -255,8 +255,10 @@ export default function Model(props: any) {
     // Toggle entire layers
     if (skinGLTF.scene) skinGLTF.scene.visible = showSkin;
     if (skeletonGLTF.scene) skeletonGLTF.scene.visible = showSkeleton;
+  });
 
-    // Visual Highlighting Logic
+  // Visual Highlighting Logic via useEffect (Runs only when state changes!)
+  useEffect(() => {
     group.current?.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
@@ -265,6 +267,7 @@ export default function Model(props: any) {
 
         let targetOpacity = mesh.userData.isSkinLayer ? 0.9 : 1.0;
         let targetEmissive = new THREE.Color(0x000000);
+        let targetTransparent = mesh.userData.isSkinLayer; // Base state
         
         // Use EXACT unique UUID matching
         const isSelected = (selectedMeshUuid === mesh.uuid);
@@ -273,24 +276,31 @@ export default function Model(props: any) {
         if (isSelected) {
             targetOpacity = 1;
             targetEmissive.setHex(0x1e3a8a); // Deep blue selected
+            targetTransparent = false; // Solid again when selected
         } else if (selectedMeshUuid) {
             targetOpacity = 0.1; // Dim everything else when something is selected!
+            targetTransparent = true; // Must be transparent to dim
         } else if (isHovered) {
             targetEmissive.setHex(0x3b82f6); // Light blue hovered
         }
 
-        mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.1);
-        mat.emissive.lerp(targetEmissive, 0.1);
-        mat.needsUpdate = true;
+        // Only update 'needsUpdate' if transparent state actually changes
+        if (mat.transparent !== targetTransparent) {
+             mat.transparent = targetTransparent;
+             mat.needsUpdate = true; // DO THIS ONLY ONCE per state change
+        }
+
+        mat.opacity = targetOpacity;
+        mat.emissive.copy(targetEmissive);
       }
     });
-  });
+  }, [selectedMeshUuid, hoveredMeshUuid, showSkin, showSkeleton]);
 
   return (
     <group ref={group} {...props} dispose={null}>
        <group onPointerOver={handlePointerOver} onPointerOut={handlePointerOut} onClick={handleClick}>
-           {skinGLTF.scene && <primitive object={skinGLTF.scene} castShadow receiveShadow />}
-           {skeletonGLTF.scene && <primitive object={skeletonGLTF.scene} castShadow receiveShadow />}
+           {skinGLTF.scene && <primitive object={skinGLTF.scene} />}
+           {skeletonGLTF.scene && <primitive object={skeletonGLTF.scene} />}
        </group>
        {hoveredOrgan && tooltipPos && !selectedOrgan && (
          <Html position={tooltipPos} center zIndexRange={[100, 0]}>
