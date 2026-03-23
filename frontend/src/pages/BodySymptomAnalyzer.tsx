@@ -47,8 +47,8 @@ export default function BodySymptomAnalyzer() {
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
                 <pointLight position={[-10, -10, -10]} intensity={0.5} />
 
-                {/* Using Stage for simple environment and bounding box centering */}
-                <Stage environment="city" intensity={0.5}>
+                {/* Using Stage for simple environment and bounding box centering (disabled remote HDRI) */}
+                <Stage environment={null} intensity={0.5}>
                   <Bounds fit clip observe margin={1.2}>
                     <Model scale={0.01} /> {/* Scale might need adjustment based on the model */}
                   </Bounds>

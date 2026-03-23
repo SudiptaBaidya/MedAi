@@ -39,7 +39,10 @@ Do not include markdown or external text, return pure JSON.`
             response_format: { type: 'json_object' }
         });
 
-        const parsedResponse = JSON.parse(completion.choices[0].message.content);
+        let rawContent = completion.choices[0].message.content.trim();
+        rawContent = rawContent.replace(/```(?:json)?/gi, '').trim();
+
+        const parsedResponse = JSON.parse(rawContent);
         res.status(200).json(parsedResponse);
     } catch (error) {
         console.error('[Get Symptoms Error]', error);
@@ -78,7 +81,10 @@ Do not include markdown or external text, return pure JSON.`;
             response_format: { type: 'json_object' }
         });
 
-        const parsedResponse = JSON.parse(completion.choices[0].message.content);
+        let rawContent = completion.choices[0].message.content.trim();
+        rawContent = rawContent.replace(/```(?:json)?/gi, '').trim();
+
+        const parsedResponse = JSON.parse(rawContent);
         res.status(200).json(parsedResponse);
     } catch (error) {
         console.error('[Analyze Symptoms Error]', error);

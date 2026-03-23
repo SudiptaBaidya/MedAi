@@ -89,7 +89,11 @@ export const analyzeSymptoms = async (req, res) => {
             response_format: { type: "json_object" }
         });
 
-        const parsedResponse = JSON.parse(completion.choices[0].message.content);
+        // Strip markdown code block wrappers (```json ... ```)
+        let rawContent = completion.choices[0].message.content.trim();
+        rawContent = rawContent.replace(/```(?:json)?/gi, '').trim();
+        
+        const parsedResponse = JSON.parse(rawContent);
         let finalSessionId = sessionId;
         let finalUserId = null;
 
@@ -235,7 +239,10 @@ export const generateSymptoms = async (req, res) => {
             response_format: { type: "json_object" }
         });
 
-        const parsedResponse = JSON.parse(completion.choices[0].message.content);
+        let rawContent = completion.choices[0].message.content.trim();
+        rawContent = rawContent.replace(/```(?:json)?/gi, '').trim();
+
+        const parsedResponse = JSON.parse(rawContent);
         res.status(200).json(parsedResponse);
     } catch (error) {
         console.error('[Generate Symptoms Error]', error);
