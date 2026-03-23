@@ -126,12 +126,12 @@ export default function Model(props: any) {
     const { x, y } = point;
     const absX = Math.abs(x);
     
-    // Head Zone (Y >= 0.68)
-    if (y >= 0.68) {
-        if (y > 0.83) return "Top of Head";
-        if (y >= 0.79) return "Eyes / Forehead";
-        if (y >= 0.76) return "Nose";
-        if (y >= 0.73) return "Mouth / Jaw";
+    // Head Zone (Y >= 0.55)
+    if (y >= 0.55) {
+        if (y > 0.75) return "Top of Head";
+        if (y >= 0.68) return "Eyes / Forehead";
+        if (y >= 0.63) return "Nose";
+        if (y >= 0.58) return "Mouth / Jaw";
         return "Neck / Throat";
     }
 

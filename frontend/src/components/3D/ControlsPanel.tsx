@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Layers, Eye, Search } from 'lucide-react';
 import { useModelInteractions } from '../../hooks/useModelInteractions';
 
 export default function ControlsPanel() {
-  const { showSkin, showOrgans, showSkeleton, toggleSkin, toggleOrgans, toggleSkeleton, setSelectedOrgan } = useModelInteractions();
-  const [query, setQuery] = useState('');
+  const { showSkin, showOrgans, showSkeleton, toggleSkin, toggleOrgans, toggleSkeleton, setSelectedOrgan, searchQuery, setSearchQuery } = useModelInteractions();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (searchQuery.trim()) {
       // Capitalize first letter to match common node names
-      const formattedQuery = query.trim().charAt(0).toUpperCase() + query.trim().slice(1).toLowerCase();
+      const formattedQuery = searchQuery.trim().charAt(0).toUpperCase() + searchQuery.trim().slice(1).toLowerCase();
       setSelectedOrgan(formattedQuery);
     }
   };
@@ -27,8 +26,8 @@ export default function ControlsPanel() {
         <input 
           type="text" 
           placeholder="Search body part... (e.g. Heart)" 
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </form>
 

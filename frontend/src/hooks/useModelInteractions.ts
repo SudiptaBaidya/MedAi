@@ -13,6 +13,9 @@ interface ModelInteractionState {
   selectedSymptoms: string[]
   customInput: string
   
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+  
   showSkin: boolean
   showOrgans: boolean
   showSkeleton: boolean
@@ -42,6 +45,9 @@ export const useModelInteractions = create<ModelInteractionState>((set) => ({
   selectedSubPart: null,
   selectedSymptoms: [],
   customInput: '',
+  searchQuery: '',
+
+  setSearchQuery: (query) => set({ searchQuery: query }),
 
   showSkin: true,
   showOrgans: true,
@@ -75,7 +81,8 @@ export const useModelInteractions = create<ModelInteractionState>((set) => ({
     selectedSymptoms: [], 
     customInput: '', 
     step: 'select-part',
-    focusPoint: null
+    focusPoint: null,
+    searchQuery: ''
   }),
 
   // Ensuring at least one layer is active to prevent full invisibility
