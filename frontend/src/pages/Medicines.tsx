@@ -24,7 +24,10 @@ export default function Medicines() {
     const [medicineData, setMedicineData] = useState<ParsedMedicineResponse | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [isListening, setIsListening] = useState(false)
+    const [autoSubmit, setAutoSubmit] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
+    const recognitionRef = useRef<any>(null)
 
     const quickSuggestions = ['Paracetamol', 'Ibuprofen', 'Amoxicillin', 'Aspirin', 'Cetirizine']
 
@@ -69,6 +72,13 @@ export default function Medicines() {
     }, [searchQuery])
 
     const handleSearch = async (query?: string) => {
+        if (recognitionRef.current) {
+            try {
+                recognitionRef.current.stop();
+            } catch(err) {}
+        }
+        setIsListening(false);
+
         const term = query || searchQuery
         if (!term.trim() || isLoading) return
 
@@ -145,6 +155,81 @@ export default function Medicines() {
 
     const riskConfig = medicineData ? getRiskConfig(medicineData.risk, medicineData.safetyScore) : null
 
+    const handleVoiceInput = () => {
+        // @ts-ignore
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Your browser doesn't support speech recognition.");
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            setIsListening(true);
+        };
+
+        let transcriptBuffer = searchQuery;
+
+        recognition.onresult = (event: any) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                transcriptBuffer += (transcriptBuffer.endsWith(' ') || !transcriptBuffer ? '' : ' ') + finalTranscript;
+            }
+
+            const displayTranscript = transcriptBuffer + (transcriptBuffer && interimTranscript ? ' ' : '') + interimTranscript;
+            setSearchQuery(displayTranscript);
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error("Speech recognition error", event.error);
+            setIsListening(false);
+            if (event.error === 'network') {
+                alert("Speech recognition failed due to a network error. If you are using Brave or a privacy-focused browser, the built-in speech API might be blocked. Please try using Chrome, Edge, or Safari.");
+            } else if (event.error === 'not-allowed') {
+                alert("Microphone access was denied. Please allow microphone access in your browser settings to use voice chat.");
+            }
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+            setAutoSubmit(true);
+        };
+
+        recognition.start();
+    };
+
+    useEffect(() => {
+        if (autoSubmit) {
+            if (searchQuery.trim() && !isLoading) {
+                setShowSuggestions(false);
+                handleSearch();
+            }
+            setAutoSubmit(false);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoSubmit]);
+
     return (
         <div className="medicines-container">
             {/* 1. Page Header */}
@@ -181,7 +266,11 @@ export default function Medicines() {
                             disabled={isLoading}
                             autoComplete="off"
                         />
-                        <button className="voice-btn" title="Voice search">
+                        <button
+                            className={`voice-btn ${isListening ? 'active' : ''}`}
+                            title={isListening ? "Listening... Click to stop" : "Voice search"}
+                            onClick={handleVoiceInput}
+                        >
                             <Mic size={18} />
                         </button>
                         <button
